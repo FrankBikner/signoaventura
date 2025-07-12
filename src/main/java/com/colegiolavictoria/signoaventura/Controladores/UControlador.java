@@ -7,6 +7,7 @@ import com.colegiolavictoria.signoaventura.Servicios.servicioUsuario;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
+
 import java.util.Optional;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,14 @@ public class UControlador{
     @GetMapping(path = "/usuario/{id}")
     @ResponseBody
     public Optional<Usuario> getMethodName(@PathVariable Integer id) {
-        return servi.getUsuario(id);
+        
+        Optional<Usuario>op = servi.getUsuario(id); 
+        System.out.println("antes if");
+        if (op.isPresent()){
+            Usuario user = op.get(); 
+            System.out.println(user.getNombre());
+        }
+        return op;
     }
     
 }

@@ -5,15 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Table(name = "Usuarios") //mapea la tabla 
-@Entity
+@Entity //Mapea la entidad con respecto a al clase 
 @Getter
 @Setter
 @Data
@@ -38,10 +37,13 @@ public class Usuario{
 
     @Column
     private String email;   
+    
+    @Column(name = "id_rol") 
+    private int idRol; 
 
-    @ManyToOne
+    /*@ManyToOne
     @JoinColumn(name = "id_rol") // Nombre del campo en la tabla "Usuarios"
-    private Rol rol;
+    private Rol rol;*/
 
 
     

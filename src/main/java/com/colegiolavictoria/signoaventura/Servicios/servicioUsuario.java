@@ -17,7 +17,9 @@ public class servicioUsuario{
     }
 
     public Optional<Usuario> getUsuario(Integer id){
+        System.out.println("numero filas" + repo.count());
         return repo.findById(id); 
     }
+
 
 } 
