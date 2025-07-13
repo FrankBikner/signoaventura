@@ -1,0 +1,23 @@
+[33mcommit 01ec382fac60d57226aa97872b2e8331243d8d73[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32morigin[m[33m, [m[1;31morigin/rama-prueba[m[33m, [m[1;31morigin/pruebas-docker[m[33m, [m[1;32mrama-prueba[m[33m)[m
+Author: Dave-arch7 <davidbravomarin558@gmail.com>
+Date:   Sat Jul 12 16:16:53 2025 -0500
+
+    pruebas realizadas con Docker (funcionales)
+
+[33mcommit 8a27296fad611bdb839bde5add0982dbd737eb3d[m
+Author: Dave-arch7 <davidbravomarin558@gmail.com>
+Date:   Sun Jul 6 00:31:35 2025 -0500
+
+    pruebas del Usuario con Mariadb
+
+[33mcommit 941c300722332e3d37e3b34b6fe34ece41b39f18[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m
+Author: Dave-arch7 <davidbravomarin558@gmail.com>
+Date:   Sat Jul 5 23:10:10 2025 -0500
+
+    Creacion y mapeo de los modelos Usuarios y roles
+
+[33mcommit eed5eb5e73d26e6df9deaf8d97c93db728703d8b[m
+Author: Dave-arch7 <davidbravomarin558@gmail.com>
+Date:   Sat Jul 5 12:52:03 2025 -0500
+
+    subida de proyecto
