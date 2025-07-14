@@ -1,4 +1,4 @@
-package com.colegiolavictoria.signoaventura.Controladores;
+package com.colegiolavictoria.signoaventura.Controladores.ControladorUsuario;
 
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 
 @RestController
-@RequestMapping(path = "/Ucontroler")
+@RequestMapping(path = "/UControlador")
 public class UControlador{
+    //solicitud de login
+    
+
     private final servicioUsuario servi; 
 
     public UControlador(servicioUsuario servicio){
