@@ -1,5 +1,6 @@
-package com.colegiolavictoria.signoaventura.Modelos;
+package com.colegiolavictoria.signoaventura.modelos;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,43 +9,41 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Table(name = "Usuarios") //mapea la tabla 
+@Table(name = "Usuarios")
 @Entity
-@Getter
-@Setter
 @Data
-public class Usuario{
+public class Usuario {
 
     @Id
-    @Column(name ="id_usuario")
+    @Column(name = "id_usuario")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idUsuario; 
+    private int idUsuario;
 
-    @Column
+    @Column(unique = true)
     private String usuario;
 
     @Column
-    private String contrasenia; 
+    private Boolean activo;
 
     @Column
-    private String nombre; 
+    private String contrasenia;
+
+    @Column
+    private String nombre;
 
     @Column
     private String apellido;
 
-    @Column
-    private String email;   
+    @Email
+    @Column(unique = true)
+    private String email;
 
-    @ManyToOne
-    @JoinColumn(name = "id_rol") // Nombre del campo en la tabla "Usuarios"
+    @ManyToOne(targetEntity = Rol.class, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "id_rol")
     private Rol rol;
 
-
     
-    
-    
-} 
+}

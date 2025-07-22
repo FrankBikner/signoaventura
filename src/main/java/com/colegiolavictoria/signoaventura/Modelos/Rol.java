@@ -1,20 +1,19 @@
-package com.colegiolavictoria.signoaventura.Modelos;
+package com.colegiolavictoria.signoaventura.modelos;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Table(name = "Roles")
 @Data
-@Getter
-@Setter
+
 public class Rol {
 
     @Id
@@ -23,7 +22,8 @@ public class Rol {
     private Long idRol;
 
     @Column(name = "nombre_rol")
-    private String nombreRol;
+    @Enumerated(EnumType.STRING)
+    private ERol nombreRol;
 
     @Column
     private String descripcion;

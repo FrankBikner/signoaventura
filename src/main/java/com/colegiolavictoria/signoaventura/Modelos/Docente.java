@@ -1,4 +1,4 @@
-package com.colegiolavictoria.signoaventura.Modelos;
+package com.colegiolavictoria.signoaventura.modelos;
 
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
