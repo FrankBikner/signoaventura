@@ -1,0 +1,26 @@
+<div class="login-wrapper">
+  <div class="login-box">
+    <div class="login-left">
+      <img src="app/assets/hot-air-balloon.png" alt="Hot Air Balloon" />
+    </div>
+
+    <div class="login-right">
+      <h2>SIGNO AVENTURA</h2>
+
+      <form [formGroup]="frmPersonLogin" (ngSubmit)="login()">
+        <div class="form-group">
+          <label for="dni">DNI</label>
+          <input id="dni" type="text" formControlName="dni" placeholder="Enter your Full Name here" />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input id="password" type="password" formControlName="password" placeholder="Enter your Password here" />
+        </div>
+
+        <button type="submit" class="create-btn">Iniciar Sesión</button>
+      </form>
+
+    </div>
+  </div>
+</div>

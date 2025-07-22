@@ -1,0 +1,51 @@
+<div class="inicio-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3 class="logo">Signo Aventura</h3>
+    <p class="admin-sub">Nombre del Administrador a cargo</p>
+    <nav>
+      <ul>
+        <li class="active">Home</li>
+        <li>Agregar Estudiantes</li>
+        <li>Listar Estudiantes</li>
+        <li>Reportes</li>
+        <li>Configuración</li>
+        <li>Juego</li>
+        <button routerLink="person/juego">Iniciar Juego</button>
+        
+      </ul>
+    </nav>
+    <button class="logout" (click)="logout()">Log Out</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <div class="contenido">
+      <h2>BIENVENIDO</h2>
+      <p class="docente">Docente: {{ docenteNombre }}</p>
+
+      <div class="estadisticas">
+        <div class="box">Total Alumnos<br /><strong>{{ totalAlumnos }}</strong></div>
+        <div class="box">Registrados<br /><strong>{{ registrados }}</strong></div>
+        <div class="box">Evaluados<br /><strong>{{ evaluados }}</strong></div>
+        <div class="box">Finalizados<br /><strong>{{ finalizados }}</strong></div>
+      </div>
+
+      <h3>Progreso de los estudiantes</h3>
+
+      <div class="alumnos">
+        <div class="alumno" *ngFor="let alumno of alumnos">
+          <div class="avatar"></div>
+          <div class="detalles">
+            <strong>{{ alumno.nombre }}</strong>
+            <span class="estado">{{ alumno.estado }}</span>
+            <p>{{ alumno.comparacion }} | {{ alumno.dificultad }}</p>
+            <p class="notas">Notas: {{ alumno.nota || 'Sin notas' }}</p>
+            <span class="progreso">Ver progreso {{ alumno.progreso }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

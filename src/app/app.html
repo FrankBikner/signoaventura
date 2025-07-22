@@ -1,0 +1,24 @@
+<nav  class="navbar navbar-expand-lg navbar-light bg-light" style="box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);">
+	<div class="d-flex justify-content-start">
+		<a class="navbar-brand" href="/" style="margin-left: 10px;margin-right: 7px;">SIGNO AVENTURA</a>
+		<div class="collapse navbar-collapse" id="navbarNav" style="border-left: 1px solid #000000;">
+			<ul class="navbar-nav ms-auto">
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="inicio">Inicio</a>
+				</li><li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+						data-bs-toggle="dropdown" aria-expanded="false">
+						Módulos
+					</a>
+					<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+						<li><a class="dropdown-item" href="insert">Registrar persona</a></li>
+						<li><a class="dropdown-item" href="getall">Listar personas</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+<section id="sectionBody">
+	<router-outlet></router-outlet>
+</section>

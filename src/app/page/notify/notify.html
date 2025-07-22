@@ -1,0 +1,6 @@
+<ng-container *ngIf="listMessage.length > 0">
+	<div *ngFor="let value of listMessage" class="alert alert-{{alertType()}} alert-dismissible fade show" role="alert">
+		{{value}}
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+</ng-container>

@@ -1,0 +1,60 @@
+<div class="container" style="margin-top: 7px;">
+	<app-notify [type]="typeResponse" [listMessage]="listMessageResponse"></app-notify>
+	<div class="card">
+		<div class="card-header">
+			<h5>Registrar persona</h5>
+		</div>
+		<div class="card-body">
+			<form [formGroup]="frmPersonInsert">
+				<div class="row">
+					<div class="col-md-3 mb-3">
+						<label for="dni" class="form-label">USUARIO</label>
+						<input type="text" formControlName="dni" class="form-control" id="dni" placeholder="Obligatorio">
+						<div *ngIf="(dniFb.touched || dniFb.dirty) && dniFb.errors && dniFb.hasError('required')" class="divError">Este campo es requerido.</div>
+						<div *ngIf="(dniFb.touched || dniFb.dirty) && dniFb.errors && dniFb.hasError('pattern')" class="divError">Formato incorrecto.</div>
+					</div>
+					<div class="col-md-3 mb-3">
+						<label for="firstName" class="form-label">Nombre</label>
+						<input type="text" formControlName="firstName" class="form-control" id="firstName" placeholder="Obligatorio">
+						<div *ngIf="(firstNameFb.touched || firstNameFb.dirty) && firstNameFb.errors && firstNameFb.hasError('required')" class="divError">Este campo es requerido.</div>
+					</div>
+					<div class="col-md-3 mb-3">
+						<label for="surName" class="form-label">Apellido</label>
+						<input type="text" formControlName="surName" class="form-control" id="surName" placeholder="Obligatorio">
+						<div *ngIf="(surNameFb.touched || surNameFb.dirty) && surNameFb.errors && surNameFb.hasError('required')" class="divError">Este campo es requerido.</div>
+					</div>
+					<div class="col-md-3 mb-3">
+						<label for="birthDate" class="form-label">Fecha de Nacimiento</label>
+						<input type="date" formControlName="birthDate" class="form-control" id="birthDate">
+						<div *ngIf="(birthDateFb.touched || birthDateFb.dirty) && birthDateFb.errors && birthDateFb.hasError('required')" class="divError">Este campo es requerido.</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-3 mb-3">
+						<label for="gender" class="form-label">Género</label>
+						<select formControlName="gender" class="form-select" id="gender">
+							<option value="1">Masculino</option>
+							<option value="0">Femenino</option>
+						</select>
+						<div *ngIf="(genderFb.touched || genderFb.dirty) && genderFb.errors && genderFb.hasError('required')" class="divError">Este campo es requerido.</div>
+					</div>
+					<div class="col-md-3 mb-3">
+						<label for="password" class="form-label">Contraseña</label>
+						<input type="password" formControlName="password" class="form-control" id="password" placeholder="Obligatorio">
+						<div *ngIf="(passwordFb.touched || passwordFb.dirty) && passwordFb.errors && passwordFb.hasError('required')" class="divError">Este campo es requerido.</div>
+						<div *ngIf="(passwordFb.touched || passwordRetypeFb.touched || passwordFb.dirty || passwordRetypeFb.dirty) && diffPassword()" class="divError">Las contraseñas no coinciden.</div>
+					</div>
+					<div class="col-md-3 mb-3">
+						<label for="passwordRetype" class="form-label">Repita contraseña</label>
+						<input type="password" formControlName="passwordRetype" class="form-control" id="passwordRetype" placeholder="Obligatorio">
+						<div *ngIf="(passwordFb.touched || passwordRetypeFb.touched || passwordFb.dirty || passwordRetypeFb.dirty) && diffPassword()" class="divError">Las contraseñas no coinciden.</div>
+					</div>
+				</div>
+				<hr>
+				<div class="d-flex justify-content-end">
+					<button type="submit" class="btn btn-primary" (click)="save()">Registrar datos</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
