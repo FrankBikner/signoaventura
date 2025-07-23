@@ -4,17 +4,16 @@
     <h3 class="logo">Signo Aventura</h3>
     <p class="admin-sub">Nombre del Administrador a cargo</p>
     <nav>
-      <ul>
-        <li class="active">Home</li>
-        <li>Agregar Estudiantes</li>
-        <li>Listar Estudiantes</li>
-        <li>Reportes</li>
-        <li>Configuración</li>
-        <li>Juego</li>
-        <button routerLink="person/juego">Iniciar Juego</button>
-        
-      </ul>
-    </nav>
+  <ul>
+    <li><button (click)="navigate('/inicio')">Home</button></li>
+    <li><button (click)="navigate('/insert')">Agregar Estudiantes</button></li>
+    <li><button (click)="navigate('/getall')">Listar Estudiantes</button></li>
+    <li><button (click)="navigate('/reportes')">Reportes</button></li>
+    <li><button (click)="navigate('/configuracion')">Configuración</button></li>
+    <li><button (click)="navigate('/juego')">Juego</button></li>
+  </ul>
+</nav>
+
     <button class="logout" (click)="logout()">Log Out</button>
   </aside>
 

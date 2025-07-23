@@ -50,7 +50,7 @@ export class LoginComponent {
 						localStorage.setItem('sessionIdPerson', response.dto.person.idPerson);
 						localStorage.setItem('sessionFirstName', response.dto.person.firstName);
 
-						this.router.navigate(['/person/getall']);
+						this.router.navigate(['getall']);
 
 						break;
 				}
@@ -60,4 +60,9 @@ export class LoginComponent {
 			}
 		});
 	}
+		logout() {
+	// Limpiar sesión o tokens si los usas
+	localStorage.clear();
+	this.router.navigate(['/login']);
+}
 }

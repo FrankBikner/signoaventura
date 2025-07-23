@@ -1,56 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PersonService } from '../../api/person.service';
-import { NotifyComponent } from '../notify/notify';
+// import { PersonService } from '../../api/person.service'; // ← 🔒 Descomenta cuando tu backend esté listo
 
 @Component({
-	selector: 'getall',
-	standalone: true,
-	imports: [
-		CommonModule,
-		NotifyComponent
-	],
-	templateUrl: './getall.html',
-	styleUrls: ['./getall.css']
+  selector: 'getall',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './getall.html',
+  styleUrls: ['./getall.css']
 })
+export class GetAllComponent implements OnInit {
+  listPerson: any[] = [];
 
-export class GetAllComponent {
-	listPerson: any[] = [];
+  // constructor(private personService: PersonService) {} ← 🔒 Habilitar cuando conectes al backend
 
-	typeResponse: string = '';
-	listMessageResponse: string[] = [];
+  constructor() {}
 
-	constructor(
-		private personService: PersonService
-	) {}
+  ngOnInit(): void {
+    // 🔴 Esta parte está usando datos simulados
+    this.listPerson = [
+      { dni: '12345678', nombre: 'Ana', apellido: 'Pérez' },
+      { dni: '87654321', nombre: 'Luis', apellido: 'García' },
+    ];
 
-	ngOnInit() {
-		this.personService.getAll().subscribe({
-			next: (response: any) => {
-				this.listPerson = response.dto.listPerson;
-			},
-			error: (error: any) => {
-				console.log(error);
-			}
-		});
-	}
-
-	delete(idPerson: string): void {
-		this.personService.delete(idPerson).subscribe({
-			next: (response: any) => {
-				this.typeResponse = response.mo.type;
-				this.listMessageResponse = response.mo.listMessage;
-
-				switch(response.mo.type) {
-					case 'success':
-						this.listPerson = this.listPerson.filter(x => x.idPerson != idPerson);
-
-						break;
-				}
-			},
-			error: (error: any) => {
-				console.log(error);
-			}
-		});
-	}
+    /*
+    // ✅ Descomenta esto cuando tengas backend
+    this.personService.getAll().subscribe({
+      next: (response: any) => {
+        this.listPerson = response.dto.listPerson;
+      },
+      error: (err: any) => {
+        console.error(err);
+      }
+    });
+    */
+  }
 }

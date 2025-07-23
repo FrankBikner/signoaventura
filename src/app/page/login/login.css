@@ -1,0 +1,105 @@
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5; /* Fondo suave */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px; /* Espacio alrededor del contenedor */
+  box-sizing: border-box; /* Incluye padding en el ancho/alto */
+}
+
+.login-box {
+  display: flex;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Para que los bordes redondeados se apliquen a la imagen */
+  width: 800px; /* Ancho fijo para el contenedor de login */
+  max-width: 100%; /* Asegura que sea responsivo */
+}
+
+/* Oculta la imagen en pantallas pequeñas */
+@media (max-width: 768px) {
+  .login-left {
+    display: none;
+  }
+  .login-box {
+    width: 400px; /* Ancho más pequeño para el formulario en móvil */
+  }
+}
+
+.login-left {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #e0f2f7; /* Color de fondo para la sección de la imagen */
+  padding: 20px;
+}
+
+.login-left img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.login-right {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-right h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #007bff; /* Color de enfoque */
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.create-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: #007bff; /* Color primario */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.create-btn:hover {
+  background-color: #0056b3; /* Color más oscuro al pasar el ratón */
+}

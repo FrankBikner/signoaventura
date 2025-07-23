@@ -31,10 +31,13 @@
       padding: 10px;
       border-radius: 8px;
       cursor: pointer;
+      margin-bottom: 5px; /* Espacio entre elementos de la lista */
+      transition: background-color 0.2s ease; /* Transición suave */
 
       &.active {
         background-color: #e0e0e0;
         font-weight: bold;
+        color: #333; /* Color de texto para activo */
       }
 
       &:hover {
@@ -51,6 +54,11 @@
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    transition: background-color 0.2s ease; /* Transición suave */
+  }
+
+  .logout:hover {
+    background-color: #c82333; /* Color más oscuro al pasar el ratón */
   }
 }
 
@@ -89,12 +97,14 @@
     display: flex;
     gap: 15px;
     margin-bottom: 25px;
+    flex-wrap: wrap; /* Para que se ajusten en pantallas pequeñas */
 
     .box {
       background: #fff;
       padding: 20px;
       border-radius: 12px;
       flex: 1;
+      min-width: 150px; /* Ancho mínimo para las cajas */
       text-align: center;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
@@ -113,7 +123,8 @@
       flex: 1;
       display: flex;
       min-width: 300px;
-      max-width: 400px;
+      max-width: 400px; /* Limita el ancho máximo para mejor lectura */
+      align-items: center; /* Alinea verticalmente el contenido */
 
       .avatar {
         width: 60px;
@@ -121,13 +132,17 @@
         background-color: #d4d4d8;
         border-radius: 50%;
         margin-right: 15px;
+        flex-shrink: 0; /* Evita que el avatar se encoja */
       }
 
       .detalles {
+        flex-grow: 1; /* Permite que los detalles ocupen el espacio restante */
+
         .estado {
           float: right;
           color: green;
           font-weight: bold;
+          font-size: 14px; /* Ajuste de tamaño */
         }
 
         .progreso {
@@ -137,13 +152,44 @@
           border-radius: 4px;
           display: inline-block;
           margin-top: 5px;
+          color: #666; /* Color de texto para progreso */
         }
 
         .notas {
           font-size: 13px;
           color: #555;
+          margin-top: 5px; /* Espacio superior */
         }
       }
+
     }
   }
+  nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+nav li {
+  margin-bottom: 10px;
+}
+
+nav button {
+  all: unset; /* Quita estilos por defecto */
+  cursor: pointer;
+  padding: 10px;
+  color: #444;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+nav button:hover {
+  background-color: #eee;
+}
+
+nav button.active {
+  font-weight: bold;
+  background-color: #ddd;
+}
+
 }

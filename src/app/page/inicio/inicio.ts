@@ -4,11 +4,10 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inicio',
-  imports: [
-    CommonModule
-  ],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './inicio.html',
-  styleUrl: './inicio.css'
+  styleUrls: ['./inicio.css']
 })
 export class InicioComponent {
   docenteNombre = 'User';
@@ -27,16 +26,22 @@ export class InicioComponent {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    if (typeof window !== 'undefined') {
-      const nombre = localStorage.getItem('sessionFirstName');
-      if (nombre) {
-        this.docenteNombre = nombre;
-      }
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    const nombre = localStorage.getItem('sessionFirstName');
+    if (nombre) {
+      this.docenteNombre = nombre;
     }
   }
+}
+
 
   logout(): void {
-    localStorage.clear(); // O puedes remover solo las claves necesarias
-    this.router.navigate(['/person/login']);
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
+  // 🔧 ESTA es la función que te faltaba:
+  navigate(ruta: string): void {
+    this.router.navigate([ruta]);
   }
 }
