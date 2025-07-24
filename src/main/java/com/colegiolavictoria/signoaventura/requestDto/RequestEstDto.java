@@ -1,28 +1,35 @@
-    package com.colegiolavictoria.signoaventura.requestDto;
+package com.colegiolavictoria.signoaventura.requestDto;
 
-    import java.time.LocalDate;
+import java.time.LocalDate;
 
-    import com.colegiolavictoria.signoaventura.modelos.Usuario;
+import com.colegiolavictoria.signoaventura.modelos.ERol;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+
+public class RequestEstDto {
+    
+   
+    private String usuario;
   
-    import lombok.AllArgsConstructor;
-    import lombok.Builder;
-    import lombok.Data;
-    import lombok.NoArgsConstructor;
+    private Boolean activo;
+  
+    private String contrasenia;
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
+    private String nombre;
+   
+    private String apellido;
+  
+    private String email;
 
-    public class RequestEstDto {
+    private ERol rol;
 
-        
-        private Usuario usuario;
-
-        private LocalDate fechaIngreso; 
-
-        private LocalDate  fechaNacimiento; 
-
-        
-    }
+    private LocalDate fechaNacimiento;
+}

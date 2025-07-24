@@ -3,6 +3,7 @@ package com.colegiolavictoria.signoaventura.controladores;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.colegiolavictoria.signoaventura.ResponseDto.ResponseEst;
+
 import com.colegiolavictoria.signoaventura.requestDto.RequestEstDto;
 import com.colegiolavictoria.signoaventura.servicios.ServicioEstudiante;
 
@@ -11,9 +12,11 @@ import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -72,8 +75,18 @@ public class EControlador{
         }
 
     }
-    
-    
+
+    @DeleteMapping(path = "/estadoEst/{usuario}/{estado}")
+    public ResponseEntity<?> estadoEst(@PathVariable String usuario, @PathVariable boolean estado){
+
+        System.out.println("cambiados " + this.servi.estadoEst(usuario, estado));
+        
+        if(this.servi.estadoEst(usuario, estado) > 0) //se modifico al menos un registro
+            return ResponseEntity.ok().build(); 
+        else 
+            return ResponseEntity.badRequest().build(); 
+
+    }
     
     
 }

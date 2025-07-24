@@ -26,6 +26,7 @@ public class ResponseEst {
     @NotBlank 
     private String email; 
 
+    private boolean activo; 
     private LocalDate fechaIngreso; 
 
 
