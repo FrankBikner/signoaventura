@@ -1,56 +1,96 @@
-<div class="px-10 md:px-40 py-5">
-  <!-- Encabezado de listado -->
-  <div class="flex flex-wrap justify-between items-center gap-3 p-4">
-    <h2 class="text-gray-900 text-2xl md:text-3xl font-bold leading-tight">
-      Listado de Estudiantes
-    </h2>
-    <span class="text-sm bg-gray-200 text-gray-900 font-medium px-4 py-2 rounded-xl">
-      {{ listPerson.length }} estudiantes
-    </span>
-  </div>
+<div class="min-h-screen bg-gradient-to-br from-blue-800 via-gray-900 to-blue-700 text-white flex">
+  <!-- Sidebar fijo -->
+  <aside class="w-64 p-6 bg-gray-900 flex flex-col justify-between fixed left-0 top-0 h-full">
+    <div>
+      <h3 class="text-2xl font-bold mb-2">Signo Aventura</h3>
+      <p class="text-sm text-gray-400 mb-6">Nombre del Administrador a cargo</p>
+      <nav>
+        <ul class="space-y-2">
+          <li><button (click)="navigate('/inicio')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">🏠 Home</button></li>
+          <li><button (click)="navigate('/insert')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">➕ Agregar Estudiantes</button></li>
+          <li><button (click)="navigate('/getall')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">📋 Listar Estudiantes</button></li>
+          <li><button (click)="navigate('/reportes')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">📊 Reportes</button></li>
+          <li><button (click)="navigate('/configuracion')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">⚙️ Configuración</button></li>
+          <li><button (click)="navigate('/juego')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">🎮 Juego</button></li>
+        </ul>
+      </nav>
+    </div>
+    <button class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white" (click)="logout()">🚪 Log Out</button>
+  </aside>
 
-  <!-- Tabla de estudiantes -->
-  <div class="px-4 py-3">
-    <div class="overflow-x-auto rounded-xl border border-gray-300 bg-white shadow-sm">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-100">
+  <!-- Contenedor principal -->
+  <div class="ml-64 flex-grow p-8">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-3xl font-bold">Estudiantes</h2>
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <input type="text" [(ngModel)]="searchTerm" (input)="filtrarEstudiantes()"
+                 class="pl-10 pr-4 py-2 rounded bg-white text-black border border-gray-300"
+                 placeholder="Buscar estudiantes...">
+          <i class="fas fa-search absolute left-3 top-2.5 text-gray-500"></i>
+        </div>
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                (click)="cargarEstudiantes()">
+          <i class="fas fa-sync-alt"></i> Actualizar
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensajes de estado -->
+    <div *ngIf="loading" class="text-yellow-300 flex items-center gap-2 mb-4">
+      <i class="fas fa-spinner fa-spin"></i> Cargando estudiantes...
+    </div>
+
+    <div *ngIf="errorMessage" class="text-red-500 flex items-center gap-2 mb-4">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && filteredEstudiantes.length === 0" class="text-blue-300 flex items-center gap-2 mb-4">
+      <i class="fas fa-info-circle"></i> No se encontraron estudiantes registrados
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading && filteredEstudiantes.length > 0" class="overflow-x-auto">
+      <table class="min-w-full bg-white text-black rounded shadow-md">
+        <thead class="bg-blue-600 text-white">
           <tr>
-            <th class="px-4 py-3 text-left text-sm font-medium text-gray-800">DNI</th>
-            <th class="px-4 py-3 text-left text-sm font-medium text-gray-800">Nombre</th>
-            <th class="px-4 py-3 text-left text-sm font-medium text-gray-800">Apellido</th>
-            <th class="px-4 py-3 text-left text-sm font-medium text-gray-800">Acciones</th>
+            <th class="py-3 px-4 text-left">#</th>
+            <th class="py-3 px-4 text-left">Nombres</th>
+            <th class="py-3 px-4 text-left">Apellidos</th>
+            <th class="py-3 px-4 text-left">Usuario</th>
+            <th class="py-3 px-4 text-left">Email</th>
+            <th class="py-3 px-4 text-left">Fecha Ingreso</th>
+            <th class="py-3 px-4 text-left">Estado</th>
+            <th class="py-3 px-4 text-left">Acciones</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let item of listPerson">
-            <td class="px-4 py-3 text-sm text-gray-700">{{ item.dni }}</td>
-            <td class="px-4 py-3 text-sm text-gray-700">{{ item.nombre }}</td>
-            <td class="px-4 py-3 text-sm text-gray-700">{{ item.apellido }}</td>
-            <td class="px-4 py-3 text-sm text-blue-700 font-semibold space-x-2">
-              <!-- 👇 Conectar este botón al backend cuando esté listo -->
-              <!--
-              <button
-                class="bg-red-100 text-red-700 px-3 py-1 rounded-md hover:bg-red-200 transition"
-                (click)="delete(item.idPerson)">
-                <i class="bi bi-trash"></i> Eliminar
+        <tbody>
+          <tr *ngFor="let estudiante of filteredEstudiantes; let i = index" class="hover:bg-gray-100">
+            <td class="py-2 px-4">{{ i + 1 }}</td>
+            <td class="py-2 px-4">{{ estudiante.nombre }}</td>
+            <td class="py-2 px-4">{{ estudiante.apellido }}</td>
+            <td class="py-2 px-4">{{ estudiante.usuario }}</td>
+            <td class="py-2 px-4">{{ estudiante.email }}</td>
+            <td class="py-2 px-4">{{ estudiante.fechaIngreso | date:'dd/MM/yyyy' }}</td>
+            <td class="py-2 px-4">
+              <span [ngClass]="estudiante.activo ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'">
+                {{ estudiante.activo ? 'ACTIVO' : 'INACTIVO' }}
+              </span>
+            </td>
+            <td class="py-2 px-4 flex gap-2">
+              <button [routerLink]="['/editar-estudiante', estudiante.usuario]"
+                      class="px-3 py-1 bg-yellow-400 text-black rounded hover:bg-yellow-500">
+                <i class="fas fa-edit"></i> Editar
               </button>
-              -->
+              <button (click)="cambiarEstado(estudiante.usuario, !estudiante.activo)"
+                      [ngClass]="estudiante.activo ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'"
+                      class="px-3 py-1 text-white rounded">
+                <i [ngClass]="estudiante.activo ? 'fas fa-toggle-off' : 'fas fa-toggle-on'"></i>
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <!-- Mensaje si no hay estudiantes -->
-    <div *ngIf="listPerson.length === 0" class="text-center text-gray-600 mt-6">
-      <i class="bi bi-people-fill text-4xl"></i>
-      <p class="mt-2">No hay estudiantes registrados aún.</p>
-    </div>
   </div>
 </div>
-
-<!-- Bootstrap Icons CDN (para íconos) -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-/>

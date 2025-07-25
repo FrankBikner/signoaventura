@@ -1,0 +1,98 @@
+<div class="edit-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <button class="back-button" (click)="cancelarEdicion()">
+      <i class="fas fa-arrow-left"></i> Regresar
+    </button>
+    <h1 class="brand-title">Editar Estudiante</h1>
+    <p class="usuario-display">Editando: {{usuarioOriginal}}</p>
+  </div>
+
+  <!-- Status Messages -->
+  <div *ngIf="loading" class="status-message loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando datos del estudiante...
+  </div>
+
+  <div *ngIf="errorMessage" class="status-message error">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="status-message success">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <!-- Edit Form -->
+  <form [formGroup]="estudianteForm" class="edit-form">
+    <div class="form-grid">
+      <!-- First Row -->
+      <div class="form-group">
+        <label for="nombre">Nombres *</label>
+        <input type="text" id="nombre" formControlName="nombre" placeholder="Ej: Juan Carlos">
+        <div *ngIf="estudianteForm.get('nombre')?.invalid && (estudianteForm.get('nombre')?.touched || estudianteForm.get('nombre')?.dirty)" class="error-message">
+          <span *ngIf="estudianteForm.get('nombre')?.errors?.['required']">Campo requerido</span>
+          <span *ngIf="estudianteForm.get('nombre')?.errors?.['pattern']">Solo letras y espacios</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="apellido">Apellidos *</label>
+        <input type="text" id="apellido" formControlName="apellido" placeholder="Ej: Pérez García">
+        <div *ngIf="estudianteForm.get('apellido')?.invalid && (estudianteForm.get('apellido')?.touched || estudianteForm.get('apellido')?.dirty)" class="error-message">
+          <span *ngIf="estudianteForm.get('apellido')?.errors?.['required']">Campo requerido</span>
+          <span *ngIf="estudianteForm.get('apellido')?.errors?.['pattern']">Solo letras y espacios</span>
+        </div>
+      </div>
+
+      <!-- Second Row -->
+      <div class="form-group">
+        <label for="usuario">Usuario *</label>
+        <input type="text" id="usuario" formControlName="usuario" placeholder="Ej: jperez2023">
+        <div *ngIf="estudianteForm.get('usuario')?.invalid && (estudianteForm.get('usuario')?.touched || estudianteForm.get('usuario')?.dirty)" class="error-message">
+          <span *ngIf="estudianteForm.get('usuario')?.errors?.['required']">Campo requerido</span>
+          <span *ngIf="estudianteForm.get('usuario')?.errors?.['minlength']">Mínimo 4 caracteres</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input type="email" id="email" formControlName="email" placeholder="Ej: juan@example.com">
+        <div *ngIf="estudianteForm.get('email')?.invalid && (estudianteForm.get('email')?.touched || estudianteForm.get('email')?.dirty)" class="error-message">
+          <span *ngIf="estudianteForm.get('email')?.errors?.['required']">Campo requerido</span>
+          <span *ngIf="estudianteForm.get('email')?.errors?.['email']">Email inválido</span>
+        </div>
+      </div>
+
+      <!-- Third Row -->
+      <div class="form-group">
+        <label for="fechaNacimiento">Fecha Nacimiento</label>
+        <input type="date" id="fechaNacimiento" formControlName="fechaNacimiento">
+      </div>
+
+      <!-- Fourth Row -->
+      <div class="form-group password-group">
+        <label for="contrasenia">Contraseña</label>
+        <div class="password-input-container">
+          <input [type]="showPassword ? 'text' : 'password'" id="contrasenia" formControlName="contrasenia" placeholder="Dejar vacío para no cambiar">
+          <button type="button" class="toggle-password" (click)="toggleShowPassword()">
+            <i [class]="showPassword ? 'far fa-eye-slash' : 'far fa-eye'"></i>
+          </button>
+        </div>
+        <div *ngIf="estudianteForm.get('contrasenia')?.invalid && (estudianteForm.get('contrasenia')?.touched || estudianteForm.get('contrasenia')?.dirty)" class="error-message">
+          <span *ngIf="estudianteForm.get('contrasenia')?.errors?.['minlength']">Mínimo 6 caracteres</span>
+        </div>
+        <small class="hint">Dejar vacío para mantener la contraseña actual</small>
+      </div>
+
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-cancel" (click)="cancelarEdicion()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-save" (click)="guardarCambios()" [disabled]="estudianteForm.invalid || loading">
+        <i class="fas fa-save"></i> {{loading ? 'Guardando...' : 'Guardar Cambios'}}
+      </button>
+    </div>
+  </form>
+</div>

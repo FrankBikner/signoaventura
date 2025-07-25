@@ -1,106 +1,112 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { PersonService } from '../../api/person.service';
 import { NotifyComponent } from "../notify/notify";
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router'; // Importar Router para la redirección
+import { RequestEstDto } from '../../models/requestEstDto';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-insert',
-  standalone: true, // Asegúrate de que sea standalone si no está en un módulo
+  standalone: true,
   imports: [
     CommonModule,
-		FormsModule,
-		ReactiveFormsModule,
-		NotifyComponent
+    FormsModule,
+    ReactiveFormsModule,
+    //NotifyComponent
   ],
   templateUrl: './insert.html',
-  styleUrl: './insert.css'
+  styleUrls: ['./insert.css']
 })
 export class InsertComponent {
-  frmPersonInsert: UntypedFormGroup;
+  frmPersonInsert: FormGroup;
+  showPassword = false;
+  loading = false;
+  today = new Date().toISOString().split('T')[0];
 
-	get dniFb() { return this.frmPersonInsert.controls['dni']; }
-	get passwordFb() { return this.frmPersonInsert.controls['password']; }
-	get passwordRetypeFb() { return this.frmPersonInsert.controls['passwordRetype']; }
-	get firstNameFb() { return this.frmPersonInsert.controls['firstName']; }
-	get surNameFb() { return this.frmPersonInsert.controls['surName']; }
-	get emailFb() { return this.frmPersonInsert.controls['email']; } // Aunque no se usa en HTML, se mantiene
-	get birthDateFb() { return this.frmPersonInsert.controls['birthDate']; }
-	get genderFb() { return this.frmPersonInsert.controls['gender']; }
+  // Propiedades para notificaciones
+  typeResponse: string = '';
+  listMessageResponse: string[] = [];
 
-	typeResponse: string = '';
-	listMessageResponse: string[] = [];
+  constructor(
+    private router: Router,
+    private formBuilder: FormBuilder,
+    private personService: PersonService
+  ) {
+    this.frmPersonInsert = this.formBuilder.group({
+      nombre: ['', [Validators.required]],
+      apellido: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      usuario: ['', [Validators.required, Validators.minLength(4)]],
+      fechaNacimiento: ['', [Validators.required]],
+      contrasenia: ['', [Validators.required, Validators.minLength(6)]],
+      confirmarContrasenia: ['', [Validators.required]],
+      activo: [true, [Validators.required]],
+      rol: ['ESTUDIANTE']
+    });
+  }
 
-	constructor(
-		private formBuilder: FormBuilder,
-		private personService: PersonService,
-    private router: Router // Inyectar el servicio Router
-	) {
-		this.frmPersonInsert = this.formBuilder.group({
-			dni: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
-			password: ['', [Validators.required]],
-			passwordRetype: ['', []], // No se requiere validación 'required' aquí, ya que se compara con password
-			firstName: ['', [Validators.required]],
-			surName: ['', [Validators.required]],
-			birthDate: ['', [Validators.required]],
-			gender: ['', [Validators.required]]
-		});
-	}
+  navigate(ruta: string): void {
+    this.router.navigate([ruta]);
+  }
 
-	public diffPassword(): boolean {	
-		// Solo compara si ambos campos tienen valor para evitar errores al inicio
-		if (this.passwordFb.value && this.passwordRetypeFb.value && this.passwordFb.value !== this.passwordRetypeFb.value) {
-			return true;
-		}
-		return false;
-	}
-
-	public save(): void {
-		// Marcar todos los controles como tocados y sucios para mostrar errores de validación
-		if(!this.frmPersonInsert.valid || this.diffPassword()) {
-			this.frmPersonInsert.markAllAsTouched();
-			// No es necesario markAsDirty() para el formulario completo si ya se marcan los controles
-			return;
-		}
-
-		let formData = new FormData();
-
-		formData.append('dni', this.dniFb.value);
-		formData.append('firstName', this.firstNameFb.value);
-		formData.append('surName', this.surNameFb.value);
-		formData.append('birthDate', this.birthDateFb.value);
-		formData.append('gender', this.genderFb.value);
-		formData.append('password', this.passwordFb.value);
-
-		this.personService.insert(formData).subscribe({
-			next: (response: any) => {
-				this.typeResponse = response.mo.type;
-				this.listMessageResponse = response.mo.listMessage;
-
-				switch(response.mo.type) {
-					case 'success':
-						this.frmPersonInsert.reset(); // Limpiar el formulario
-            // Redirigir a la página de listado de estudiantes después de un registro exitoso
-            this.router.navigate(['/person/getall']);
-						break;
-				}
-			},
-			error: (error: any) => {
-				console.log(error);
-        // Opcional: Mostrar un mensaje de error genérico si la API falla
-        this.typeResponse = 'error';
-        this.listMessageResponse = ['Ocurrió un error al registrar la persona.'];
-			}
-		});
-	}
-	 logout(): void {
+  logout(): void {
     localStorage.clear();
     this.router.navigate(['/login']);
   }
 
-  // 🔧 ESTA es la función que te faltaba:
-  navigate(ruta: string): void {
-    this.router.navigate([ruta]);
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  passwordsDontMatch(): boolean {
+    const pass = this.frmPersonInsert.get('contrasenia')?.value;
+    const confirmPass = this.frmPersonInsert.get('confirmarContrasenia')?.value;
+    return pass !== confirmPass;
+  }
+
+  public save(): void {
+    if (this.frmPersonInsert.invalid || this.passwordsDontMatch()) {
+      this.frmPersonInsert.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
+    this.typeResponse = '';
+    this.listMessageResponse = [];
+
+    const formData: RequestEstDto = {
+      nombre: this.frmPersonInsert.get('nombre')?.value,
+      apellido: this.frmPersonInsert.get('apellido')?.value,
+      email: this.frmPersonInsert.get('email')?.value,
+      usuario: this.frmPersonInsert.get('usuario')?.value,
+      contrasenia: this.frmPersonInsert.get('contrasenia')?.value,
+      fechaNacimiento: this.frmPersonInsert.get('fechaNacimiento')?.value,
+      activo: this.frmPersonInsert.get('activo')?.value,
+      nombreRol: this.frmPersonInsert.get('rol')?.value
+    };
+
+    this.personService.insert(formData).subscribe({
+      next: (response: any) => {
+        this.typeResponse = 'success';
+        this.listMessageResponse = ['Estudiante registrado exitosamente'];
+        
+        // Resetear el formulario
+        this.frmPersonInsert.reset();
+        this.frmPersonInsert.get('rol')?.setValue('ESTUDIANTE');
+        this.frmPersonInsert.get('activo')?.setValue(true);
+        
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error(error);
+        this.typeResponse = 'error';
+        this.listMessageResponse = error.error?.listMessage || ['Ocurrió un error al registrar el estudiante'];
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false; // Asegurarse que loading sea false al completarse
+      }
+    });
   }
 }

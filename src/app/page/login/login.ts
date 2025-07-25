@@ -1,68 +1,97 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators, FormGroup, AbstractControl } from '@angular/forms';
 import { PersonService } from '../../api/person.service';
 import { Router } from '@angular/router';
 import { NotifyComponent } from '../notify/notify';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
-    ReactiveFormsModule
-],
+    ReactiveFormsModule,
+     // Añadido el componente de notificaciones
+  ],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrls: ['./login.css']
 })
 export class LoginComponent {
-  frmPersonLogin: UntypedFormGroup;
+  private formBuilder = inject(FormBuilder);
+  private personService = inject(PersonService);
+  private router = inject(Router);
 
-	typeResponse: string = '';
-	listMessageResponse: string[] = [];
+  // Formulario reactivo con validación de 2 caracteres para contraseña
+  frmPersonLogin = this.formBuilder.group({
+    usuario: ['', [Validators.required, Validators.minLength(4)]],
+    contrasenia: ['', [Validators.required, Validators.minLength(2)]] // Cambiado a 2 caracteres
+  });
 
-	get dniFb() { return this.frmPersonLogin.controls['dni']; }
-	get passwordFb() { return this.frmPersonLogin.controls['password']; }
+  // Estados del componente
+  loading: boolean = false;
+  showPassword: boolean = false;
+  errorMessage: string | null = null;
 
-	constructor(
-		private formBuilder: FormBuilder,
-		private personService: PersonService,
-		private router: Router
-	) {
-		this.frmPersonLogin = this.formBuilder.group({
-			dni: ['', []],
-			password: ['', []]
-		});
-	}
+  // Getters para acceder fácilmente a los controles
+  get usuario() { return this.frmPersonLogin.get('usuario'); }
+  get contrasenia() { return this.frmPersonLogin.get('contrasenia'); }
 
-	public login(): void {
-		let formData = new FormData();
+  // Método de login
+  public login(): void {
+    if (this.frmPersonLogin.invalid) {
+      this.markFormGroupTouched(this.frmPersonLogin);
+      return;
+    }
 
-		formData.append('dni', this.dniFb.value);
-		formData.append('password', this.passwordFb.value);
+    this.loading = true;
+    this.errorMessage = null;
 
-		this.personService.login(formData).subscribe({
-			next: (response: any) => {
-				this.typeResponse = response.mo.type;
-				this.listMessageResponse = response.mo.listMessage;
+    const credentials = {
+      usuario: this.usuario?.value?.trim() || '',
+      contrasenia: this.contrasenia?.value || ''
+    };
 
-				switch(response.mo.type) {
-					case 'success':
-						localStorage.setItem('sessionJwtToken', response.dto.person.jwtToken);
-						localStorage.setItem('sessionIdPerson', response.dto.person.idPerson);
-						localStorage.setItem('sessionFirstName', response.dto.person.firstName);
+    this.personService.login(credentials).subscribe({
+      next: (response) => {
+        this.loading = false;
+        if (response.token) {
+          localStorage.setItem('authToken', response.token);
+          localStorage.setItem('username', response.username);
+          this.router.navigate(['/inicio']);
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        this.errorMessage = this.getErrorMessage(error);
+        console.error('Login error:', error);
+      }
+    });
+  }
 
-						this.router.navigate(['getall']);
+  // Manejo de mensajes de error
+  private getErrorMessage(error: any): string {
+    if (error.status === 401) {
+      return 'Credenciales incorrectas';
+    }
+    if (error.error?.message) {
+      return error.error.message;
+    }
+    return 'Error en el servidor. Por favor intente más tarde.';
+  }
 
-						break;
-				}
-			},
-			error: (error: any) => {
-				console.log(error);
-			}
-		});
-	}
-		logout() {
-	// Limpiar sesión o tokens si los usas
-	localStorage.clear();
-	this.router.navigate(['/login']);
-}
+  // Alternar visibilidad de contraseña
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  // Marcar todos los campos como tocados
+  private markFormGroupTouched(formGroup: FormGroup): void {
+    Object.values(formGroup.controls).forEach((control: AbstractControl) => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
 }

@@ -1,50 +1,70 @@
-<div class="inicio-wrapper">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h3 class="logo">Signo Aventura</h3>
-    <p class="admin-sub">Nombre del Administrador a cargo</p>
-    <nav>
-  <ul>
-    <li><button (click)="navigate('/inicio')">Home</button></li>
-    <li><button (click)="navigate('/insert')">Agregar Estudiantes</button></li>
-    <li><button (click)="navigate('/getall')">Listar Estudiantes</button></li>
-    <li><button (click)="navigate('/reportes')">Reportes</button></li>
-    <li><button (click)="navigate('/configuracion')">Configuración</button></li>
-    <li><button (click)="navigate('/juego')">Juego</button></li>
-  </ul>
-</nav>
+<div class="flex min-h-screen bg-gradient-to-tr from-blue-800 via-gray-900 to-blue-700 text-white">
 
-    <button class="logout" (click)="logout()">Log Out</button>
+  <!-- Sidebar -->
+  <aside class="w-64 p-6 bg-gray-900 flex flex-col justify-between">
+    <div>
+      <h3 class="text-2xl font-bold mb-2">Signo Aventura</h3>
+      <p class="text-sm text-gray-400 mb-6">Nombre del Administrador a cargo</p>
+
+      <nav>
+        <ul class="space-y-2">
+          <li><button (click)="navigate('/inicio')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">🏠 Home</button></li>
+          <li><button (click)="navigate('/insert')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">➕ Agregar Estudiantes</button></li>
+          <li><button (click)="navigate('/getall')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">📋 Listar Estudiantes</button></li>
+          <li><button (click)="navigate('/reportes')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">📊 Reportes</button></li>
+          <li><button (click)="navigate('/configuracion')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">⚙️ Configuración</button></li>
+          <li><button (click)="navigate('/juego')" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">🎮 Juego</button></li>
+        </ul>
+      </nav>
+    </div>
+
+    <button class="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white" (click)="logout()">🚪 Log Out</button>
   </aside>
 
   <!-- Main -->
-  <main class="main">
-
-    <div class="contenido">
-      <h2>BIENVENIDO</h2>
-      <p class="docente">Docente: {{ docenteNombre }}</p>
-
-      <div class="estadisticas">
-        <div class="box">Total Alumnos<br /><strong>{{ totalAlumnos }}</strong></div>
-        <div class="box">Registrados<br /><strong>{{ registrados }}</strong></div>
-        <div class="box">Evaluados<br /><strong>{{ evaluados }}</strong></div>
-        <div class="box">Finalizados<br /><strong>{{ finalizados }}</strong></div>
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="space-y-8">
+      <div>
+        <h2 class="text-3xl font-bold">BIENVENIDO</h2>
+        <p class="text-lg text-gray-300 mt-2">Docente: {{ docenteNombre }}</p>
       </div>
 
-      <h3>Progreso de los estudiantes</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-gray-800 p-4 rounded-lg shadow text-center">
+          <div class="text-sm text-gray-400">Total Alumnos</div>
+          <strong class="text-xl">{{ totalAlumnos }}</strong>
+        </div>
+        <div class="bg-gray-800 p-4 rounded-lg shadow text-center">
+          <div class="text-sm text-gray-400">Registrados</div>
+          <strong class="text-xl">{{ registrados }}</strong>
+        </div>
+        <div class="bg-gray-800 p-4 rounded-lg shadow text-center">
+          <div class="text-sm text-gray-400">Evaluados</div>
+          <strong class="text-xl">{{ evaluados }}</strong>
+        </div>
+        <div class="bg-gray-800 p-4 rounded-lg shadow text-center">
+          <div class="text-sm text-gray-400">Finalizados</div>
+          <strong class="text-xl">{{ finalizados }}</strong>
+        </div>
+      </div>
 
-      <div class="alumnos">
-        <div class="alumno" *ngFor="let alumno of alumnos">
-          <div class="avatar"></div>
-          <div class="detalles">
-            <strong>{{ alumno.nombre }}</strong>
-            <span class="estado">{{ alumno.estado }}</span>
-            <p>{{ alumno.comparacion }} | {{ alumno.dificultad }}</p>
-            <p class="notas">Notas: {{ alumno.nota || 'Sin notas' }}</p>
-            <span class="progreso">Ver progreso {{ alumno.progreso }}</span>
+      <div>
+        <h3 class="text-2xl font-semibold mb-4">Progreso de los estudiantes</h3>
+
+        <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div class="bg-gray-800 p-4 rounded-lg shadow flex space-x-4" *ngFor="let alumno of alumnos">
+            <div class="w-12 h-12 bg-gray-600 rounded-full"></div>
+            <div>
+              <strong class="block text-lg">{{ alumno.nombre }}</strong>
+              <span class="text-sm text-blue-400">{{ alumno.estado }}</span>
+              <p class="text-sm text-gray-300">{{ alumno.comparacion }} | {{ alumno.dificultad }}</p>
+              <p class="text-sm text-yellow-300">Notas: {{ alumno.nota || 'Sin notas' }}</p>
+              <span class="text-sm text-green-400">Ver progreso {{ alumno.progreso }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </main>
+
 </div>
