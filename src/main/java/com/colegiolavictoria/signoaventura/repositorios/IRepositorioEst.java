@@ -18,7 +18,7 @@ public interface IRepositorioEst extends JpaRepository<Estudiante, Integer>{
 
     
     public Optional<Estudiante> findByUsuarioUsuario(String usuario); //busca el estudiante por el usuario 
- 
+
       
     @Modifying
     @Transactional

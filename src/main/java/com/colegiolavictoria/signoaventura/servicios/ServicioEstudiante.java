@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -111,6 +112,31 @@ public class ServicioEstudiante{
         }
     }
 
+    public Estudiante actulizarEst(RequestEstDto est)
+    {
+        //busca est por usuario para modificarlo
+        Optional<Estudiante> e = this.repo.findByUsuarioUsuario(est.getUsuario()); 
+
+
+        if(e.isPresent()){//si el est existe lo modificamos
+            //para el usuario correspondiente al estudiante
+            e.get().getUsuario().setNombre(est.getNombre()); //esablece el nombre
+            e.get().getUsuario().setApellido(est.getApellido()); //esablece el apellido
+            e.get().getUsuario().setEmail(est.getEmail());
+            e.get().getUsuario().setUsuario(est.getUsuario());
+            e.get().getUsuario().setContrasenia(passwordEncoder.encode(est.getContrasenia())); //encriptamos la contrasenia par aguardarla
+            
+            //atributo correspondiente al estudiante
+            e.get().setFechaNacimiento(est.getFechaNacimiento());
+
+            return this.repo.save(e.get()); 
+        }
+        else{
+            return null; 
+        }
+
+
+    }
 
    
 } 
