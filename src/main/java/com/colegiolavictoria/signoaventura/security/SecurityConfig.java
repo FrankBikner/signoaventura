@@ -47,6 +47,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/login").permitAll();
+                auth.requestMatchers("/api/pcontrolador/**").permitAll(); // Permitir acceso a obtener progreso
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // Permitir peticiones OPTIONS
                 auth.anyRequest().authenticated();
             })
@@ -60,7 +61,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200")); // Solo tu frontend Angular
+        config.setAllowedOrigins(List.of("http://localhost:4200")); // Solo Angular
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
