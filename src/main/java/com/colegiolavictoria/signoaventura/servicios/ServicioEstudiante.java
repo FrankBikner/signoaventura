@@ -36,6 +36,7 @@ public class ServicioEstudiante{
             ResponseEst estudiante = ResponseEst.builder()
                 .nombre(est.get().getUsuario().getNombre())
                 .apellido(est.get().getUsuario().getApellido())
+                .rol(est.get().getUsuario().getRol().getNombreRol().name())
                 .build();
                 return Optional.of(estudiante);  
         }
@@ -87,6 +88,7 @@ public class ServicioEstudiante{
                     .email(est.getUsuario().getEmail())
                     .fechaIngreso(est.getFechaIngreso())
                     .activo(est.getUsuario().getActivo())
+                    .rol(est.getUsuario().getRol().getNombreRol().name())
                     .build()
                     ); 
                 

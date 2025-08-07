@@ -28,6 +28,7 @@ public class ResponseEst {
 
     private boolean activo; 
     private LocalDate fechaIngreso; 
+    private String rol; 
 
 
 }
