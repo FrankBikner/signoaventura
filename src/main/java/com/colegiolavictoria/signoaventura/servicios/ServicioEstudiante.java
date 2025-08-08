@@ -87,6 +87,7 @@ public class ServicioEstudiante{
                     .usuario(est.getUsuario().getUsuario())
                     .email(est.getUsuario().getEmail())
                     .fechaIngreso(est.getFechaIngreso())
+                    .fechaNacimiento(est.getFechaNacimiento())
                     .activo(est.getUsuario().getActivo())
                     .rol(est.getUsuario().getRol().getNombreRol().name())
                     .build()

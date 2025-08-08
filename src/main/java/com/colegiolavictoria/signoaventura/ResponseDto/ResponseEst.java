@@ -27,7 +27,8 @@ public class ResponseEst {
     private String email; 
 
     private boolean activo; 
-    private LocalDate fechaIngreso; 
+    private LocalDate fechaIngreso;
+    private LocalDate fechaNacimiento; // Nueva propiedad para la fecha de nacimiento
     private String rol; 
 
 

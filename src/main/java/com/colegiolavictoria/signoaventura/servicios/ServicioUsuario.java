@@ -29,6 +29,12 @@ public class ServicioUsuario {
 
     }
 
+    public Usuario obtenerUsuario(String usuario) {
+        return this.repositorioUsr.findByUsuario(usuario)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+    }
+
 
 
 }
