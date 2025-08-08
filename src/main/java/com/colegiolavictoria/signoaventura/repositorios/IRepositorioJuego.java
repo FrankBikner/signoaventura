@@ -3,7 +3,7 @@ package com.colegiolavictoria.signoaventura.repositorios;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.colegiolavictoria.signoaventura.modelos.Juego;
+import com.colegiolavictoria.signoaventura.Modelos.Juego;
 
 @Repository
 public interface IRepositorioJuego extends JpaRepository<Juego, Integer> {

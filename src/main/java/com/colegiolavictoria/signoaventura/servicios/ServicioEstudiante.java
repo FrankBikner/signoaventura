@@ -9,11 +9,11 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.colegiolavictoria.signoaventura.Modelos.ERol;
+import com.colegiolavictoria.signoaventura.Modelos.Estudiante;
+import com.colegiolavictoria.signoaventura.Modelos.Rol;
+import com.colegiolavictoria.signoaventura.Modelos.Usuario;
 import com.colegiolavictoria.signoaventura.ResponseDto.ResponseEst;
-import com.colegiolavictoria.signoaventura.modelos.ERol;
-import com.colegiolavictoria.signoaventura.modelos.Estudiante;
-import com.colegiolavictoria.signoaventura.modelos.Rol;
-import com.colegiolavictoria.signoaventura.modelos.Usuario;
 import com.colegiolavictoria.signoaventura.repositorios.IRepositorioEst;
 import com.colegiolavictoria.signoaventura.requestDto.RequestEstDto;
 

@@ -2,7 +2,7 @@ package com.colegiolavictoria.signoaventura.requestDto;
 
 
 
-import com.colegiolavictoria.signoaventura.modelos.ERol;
+import com.colegiolavictoria.signoaventura.Modelos.ERol;
 
 import lombok.Data;
 

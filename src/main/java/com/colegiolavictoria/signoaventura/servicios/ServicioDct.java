@@ -3,10 +3,10 @@ package com.colegiolavictoria.signoaventura.servicios;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.colegiolavictoria.signoaventura.modelos.Docente;
-import com.colegiolavictoria.signoaventura.modelos.ERol;
-import com.colegiolavictoria.signoaventura.modelos.Rol;
-import com.colegiolavictoria.signoaventura.modelos.Usuario;
+import com.colegiolavictoria.signoaventura.Modelos.Docente;
+import com.colegiolavictoria.signoaventura.Modelos.ERol;
+import com.colegiolavictoria.signoaventura.Modelos.Rol;
+import com.colegiolavictoria.signoaventura.Modelos.Usuario;
 import com.colegiolavictoria.signoaventura.repositorios.IRDct;
 import com.colegiolavictoria.signoaventura.requestDto.RequestDctDto;
 

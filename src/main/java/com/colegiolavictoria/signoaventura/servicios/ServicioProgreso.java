@@ -2,9 +2,9 @@ package com.colegiolavictoria.signoaventura.servicios;
 
 import org.springframework.stereotype.Service;
 
-import com.colegiolavictoria.signoaventura.modelos.Estudiante;
-import com.colegiolavictoria.signoaventura.modelos.Juego;
-import com.colegiolavictoria.signoaventura.modelos.Progreso;
+import com.colegiolavictoria.signoaventura.Modelos.Estudiante;
+import com.colegiolavictoria.signoaventura.Modelos.Juego;
+import com.colegiolavictoria.signoaventura.Modelos.Progreso;
 import com.colegiolavictoria.signoaventura.repositorios.IRepositorioEst;
 import com.colegiolavictoria.signoaventura.repositorios.IRepositorioJuego;
 import com.colegiolavictoria.signoaventura.repositorios.RProgreso;

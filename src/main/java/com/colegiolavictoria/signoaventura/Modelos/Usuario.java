@@ -1,4 +1,4 @@
-package com.colegiolavictoria.signoaventura.modelos;
+package com.colegiolavictoria.signoaventura.Modelos;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

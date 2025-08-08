@@ -3,7 +3,7 @@ package com.colegiolavictoria.signoaventura.repositorios;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.colegiolavictoria.signoaventura.modelos.Progreso;
+import com.colegiolavictoria.signoaventura.Modelos.Progreso;
 
 @Repository
 public interface RProgreso extends JpaRepository<Progreso, Integer> {

@@ -1,4 +1,4 @@
-package com.colegiolavictoria.signoaventura.modelos;
+package com.colegiolavictoria.signoaventura.Modelos;
 
 import java.time.LocalDateTime;
 
