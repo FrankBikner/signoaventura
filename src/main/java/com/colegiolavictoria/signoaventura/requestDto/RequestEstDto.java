@@ -2,7 +2,7 @@ package com.colegiolavictoria.signoaventura.requestDto;
 
 import java.time.LocalDate;
 
-import com.colegiolavictoria.signoaventura.modelos.ERol;
+import com.colegiolavictoria.signoaventura.Modelos.ERol;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

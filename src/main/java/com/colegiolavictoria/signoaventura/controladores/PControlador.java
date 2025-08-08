@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.colegiolavictoria.signoaventura.modelos.Progreso;
+import com.colegiolavictoria.signoaventura.Modelos.Progreso;
 import com.colegiolavictoria.signoaventura.requestDto.ProgresoDto;
 import com.colegiolavictoria.signoaventura.servicios.ServicioProgreso;
 

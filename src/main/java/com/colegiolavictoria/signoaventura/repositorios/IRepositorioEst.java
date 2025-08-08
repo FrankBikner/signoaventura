@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.colegiolavictoria.signoaventura.modelos.Estudiante;
+import com.colegiolavictoria.signoaventura.Modelos.Estudiante;
 
 import jakarta.transaction.Transactional;
 
