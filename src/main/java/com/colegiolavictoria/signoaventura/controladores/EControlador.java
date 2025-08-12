@@ -3,6 +3,7 @@ package com.colegiolavictoria.signoaventura.controladores;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.colegiolavictoria.signoaventura.ResponseDto.ResponseEst;
+import com.colegiolavictoria.signoaventura.requestDto.EditDto;
 import com.colegiolavictoria.signoaventura.requestDto.RequestEstDto;
 import com.colegiolavictoria.signoaventura.servicios.ServicioEstudiante;
 
@@ -88,10 +89,10 @@ public class EControlador{
     }
 
     @PutMapping("/actualizarEst")
-    public ResponseEntity<?> actualizarEst(@RequestBody RequestEstDto est){
+    public ResponseEntity<?> actualizarEst(@RequestBody EditDto est){
         
         System.out.println("esta llegando aqui");
-        if(this.servi.actulizarEst(est) != null){
+        if(this.servi.actualizarEst(est) != null){
             
             return ResponseEntity.ok(est); 
         }else{

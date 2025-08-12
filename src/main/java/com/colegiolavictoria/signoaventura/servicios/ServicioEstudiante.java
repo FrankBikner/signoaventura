@@ -16,6 +16,8 @@ import com.colegiolavictoria.signoaventura.Modelos.Usuario;
 import com.colegiolavictoria.signoaventura.ResponseDto.ResponseEst;
 import com.colegiolavictoria.signoaventura.repositorios.IRepositorioEst;
 import com.colegiolavictoria.signoaventura.requestDto.RequestEstDto;
+import com.colegiolavictoria.signoaventura.requestDto.EditDto;
+
 
 @Service
 public class ServicioEstudiante{
@@ -115,7 +117,7 @@ public class ServicioEstudiante{
         }
     }
 
-    public Estudiante actulizarEst(RequestEstDto est)
+    public Estudiante actualizarEst(EditDto est)
     {
         //busca est por usuario para modificarlo
         Optional<Estudiante> e = this.repo.findByUsuarioUsuario(est.getUsuario()); 
