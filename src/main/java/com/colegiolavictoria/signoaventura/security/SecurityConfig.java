@@ -20,14 +20,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Habilita CORS
-            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Permitir CORS
+            .csrf(csrf -> csrf.disable()) // Desactivar CSRF
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/EControlador/**").permitAll()
-                .requestMatchers("/DControlador/**").permitAll()
-                .anyRequest().authenticated()
-                
+                .anyRequest().permitAll() // Permitir TODO sin autenticación
             );
         return http.build();
     }
@@ -35,11 +31,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); 
-        configuration.setAllowedOrigins(Arrays.asList("https://signoaventuraweb.web.app")); 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Cualquier origen
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Todos los métodos
+        configuration.setAllowedHeaders(Arrays.asList("*")); // Todos los headers
+        configuration.setAllowCredentials(true); // Permitir credenciales si es necesario
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
