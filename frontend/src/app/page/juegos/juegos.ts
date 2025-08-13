@@ -35,7 +35,16 @@ export class JuegosComponent implements OnInit {
       imagen: '/games/juego3/assets/images/apple.png',
       url: '/games/juego3/index_mejorado.html',
       concepto: 'Igual que (=)'
+    }, 
+    {
+      id: 4,
+      titulo: 'Cohete mayor que',
+      descripcion: 'formas cifras y despliqga el cohete.',
+      imagen: '/games/juego4/assets/images/cohete.png',
+      url: '/games/juego4/index.html',
+      concepto: 'Comparación de números'
     }
+
   ]; 
 
   constructor(private router: Router) {}
