@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signo Aventura - Menor Que (Globos)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        #game-container {
+            border: 3px solid #4169E1;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: white;
+            padding: 10px;
+        }
+        
+        canvas {
+            display: block;
+            border-radius: 10px;
+        }
+        
+        .game-info {
+            text-align: center;
+            margin-top: 10px;
+            color: #2F4F4F;
+            font-weight: bold;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            background: #4169E1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #1E90FF;
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-canvas"></div>
+        <div class="game-info">
+            <div id="game-status">¡Haz clic en TODOS los grupos que tengan MENOS globos que el número indicado!</div>
+            <div id="score-info" style="margin-top: 5px; font-size: 14px; color: #4169E1;">Grupos correctos encontrados: <span id="correct-count">0</span> / <span id="total-correct">0</span></div>
+        </div>
+        <div class="controls">
+            <button id="reset-btn" class="btn">Nuevo Problema</button>
+            <button id="help-btn" class="btn">Ayuda</button>
+        </div>
+    </div>
+
+    <script src="phaser.js"></script>
+    <script src="src/scenes/GameScene.js"></script>
+    <script src="src/main.js"></script>
+</body>
+</html>
+

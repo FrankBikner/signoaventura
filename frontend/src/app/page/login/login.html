@@ -1,0 +1,93 @@
+
+<div class="background min-h-screen flex items-center justify-center p-4 ">
+  <div class="w-full max-w-4xl">
+    <div class="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex flex-col md:flex-row min-h-[500px]">
+        
+        <!-- Lado izquierdo con imagen -->
+        <div class="md:w-1/2 bg-gradient-to-b from-black via-sky-950 to-black flex items-center justify-center p-8">
+          <div class="text-center">
+            <img src="assets/hot-air-balloon.png" alt="Hot Air Balloon" class="w-48 h-48 mx-auto mb-6 opacity-90" />
+            <h3 class="text-white text-2xl font-bold mb-2">Bienvenido de vuelta</h3>
+            <p class="text-blue-100">Inicia sesión para continuar tu aventura educativa</p>
+          </div>
+        </div>
+
+        <!-- Lado derecho - formulario -->
+        <div class="md:w-1/2 p-8 flex flex-col justify-center">
+          <div class="max-w-sm mx-auto w-full">
+            <h2 class="text-white text-3xl font-bold mb-8 text-center">SIGNO AVENTURA</h2>
+
+            <div *ngIf="errorMessage" class="bg-red-500 text-white text-sm px-4 py-2 rounded mb-4">
+              {{ errorMessage }}
+            </div>
+
+            <form [formGroup]="frmPersonLogin" (ngSubmit)="login()" class="space-y-6">
+
+              <!-- Campo usuario -->
+              <div>
+                <label for="usuario" class="block text-white text-sm font-medium mb-1">Usuario</label>
+                <input 
+                  id="usuario" 
+                  type="text" 
+                  formControlName="usuario"
+                  placeholder="Ingresa tu usuario"
+                  [class.border-red-500]="usuario?.invalid && (usuario?.dirty || usuario?.touched)"
+                  class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <div *ngIf="usuario?.invalid && (usuario?.dirty || usuario?.touched)" class="text-red-300 text-xs mt-1">
+                  <span *ngIf="usuario?.errors?.['required']">Usuario requerido</span>
+                  <span *ngIf="usuario?.errors?.['minlength']">Mínimo 4 caracteres</span>
+                </div>
+              </div>
+
+              <!-- Campo contraseña -->
+              <div>
+                <label for="contrasenia" class="block text-white text-sm font-medium mb-1">Contraseña</label>
+                <div class="relative">
+                  <input 
+                    [type]="showPassword ? 'text' : 'password'" 
+                    id="contrasenia" 
+                    formControlName="contrasenia"
+                    placeholder="Ingresa tu contraseña"
+                    [class.border-red-500]="contrasenia?.invalid && (contrasenia?.dirty || contrasenia?.touched)"
+                    class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400 pr-10"
+                  />
+                  <button type="button" (click)="togglePasswordVisibility()" class="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-gray-300">
+                    {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+                  </button>
+                </div>
+                <div *ngIf="contrasenia?.invalid && (contrasenia?.dirty || contrasenia?.touched)" class="text-red-300 text-xs mt-1">
+                  <span *ngIf="contrasenia?.errors?.['required']">Contraseña requerida</span>
+                  <span *ngIf="contrasenia?.errors?.['minlength']">Mínimo 6 caracteres</span>
+                </div>
+              </div>
+
+              <!-- Botón -->
+              <button 
+                type="submit" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                [disabled]="loading">
+                <ng-container *ngIf="!loading">Iniciar Sesión</ng-container>
+                <ng-container *ngIf="loading">
+                  <span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                  Cargando...
+                </ng-container>
+              </button>
+            </form>
+             <div class="mt-6 text-center">
+              <a href="/registro" class="text-blue-300 hover:text-blue-200 text-sm transition-colors">Registrarse</a>
+            </div>
+
+            <div class="mt-6 text-center">
+              <a href="#" class="text-blue-300 hover:text-blue-200 text-sm transition-colors">¿Olvidaste tu contraseña?</a>
+            </div>
+            
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

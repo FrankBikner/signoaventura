@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signo Aventura - Sistema de Juegos Matemáticos</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #FFE4B5 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2F4F4F;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #8B4513;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            margin: 5px 0;
+            color: #2F4F4F;
+        }
+        
+        #game-container {
+            border: 4px solid #8B4513;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            background: white;
+            padding: 15px;
+            max-width: 90vw;
+            max-height: 80vh;
+        }
+        
+        canvas {
+            display: block;
+            border-radius: 15px;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .game-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #2F4F4F;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            min-width: 120px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(145deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.secondary {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+        }
+        
+        .btn.secondary:hover {
+            background: linear-gradient(145deg, #1976D2, #2196F3);
+        }
+        
+        .btn.danger {
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+        }
+        
+        .btn.danger:hover {
+            background: linear-gradient(145deg, #d32f2f, #f44336);
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            min-width: 100px;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(145deg, #FF9800, #F57C00);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #2F4F4F;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8B4513;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            #game-container {
+                padding: 10px;
+                margin: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            color: #8B4513;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        
+        .loading::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% {
+                color: rgba(0,0,0,0);
+                text-shadow: .25em 0 0 rgba(0,0,0,0),
+                            .5em 0 0 rgba(0,0,0,0);
+            }
+            40% {
+                color: #8B4513;
+                text-shadow: .25em 0 0 rgba(0,0,0,0),
+                            .5em 0 0 rgba(0,0,0,0);
+            }
+            60% {
+                text-shadow: .25em 0 0 #8B4513,
+                            .5em 0 0 rgba(0,0,0,0);
+            }
+            80%, 100% {
+                text-shadow: .25em 0 0 #8B4513,
+                            .5em 0 0 #8B4513;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍎 Signo Aventura 🍎</h1>
+        <p>Sistema de Juegos Matemáticos para Operadores de Comparación</p>
+    </div>
+    
+    <div id="game-container">
+        <div id="loading" class="loading">Cargando juego</div>
+        <div id="game-canvas" style="display: none;"></div>
+        
+        <div class="game-info">
+            <div id="game-status">¡Selecciona un modo de juego y comienza a aprender!</div>
+        </div>
+        
+        <div class="stats" id="game-stats" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-value" id="current-level">1</div>
+                <div>Nivel</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="problems-solved">0</div>
+                <div>Problemas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="current-mode">Igualdad</div>
+                <div>Modo</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="reset-btn" class="btn">🔄 Nuevo Problema</button>
+            <button id="help-btn" class="btn secondary">❓ Ayuda</button>
+        </div>
+        
+        <div class="mode-selector">
+            <button id="mode-equality" class="btn mode-btn active">= Igualdad</button>
+            <button id="mode-greater" class="btn mode-btn">> Mayor que</button>
+            <button id="mode-lesser" class="btn mode-btn">< Menor que</button>
+        </div>
+    </div>
+
+    <script src="phaser.js"></script>
+    <script src="src/scenes/GameScene_mejorado.js"></script>
+    <script>
+        // Configuración principal del juego Phaser mejorada
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            parent: 'game-canvas',
+            backgroundColor: '#87CEEB',
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: false
+                }
+            },
+            scene: [GameScene],
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH,
+                min: {
+                    width: 400,
+                    height: 300
+                },
+                max: {
+                    width: 1200,
+                    height: 900
+                }
+            }
+        };
+
+        // Variables globales
+        let game = null;
+        let gameScene = null;
+        let problemsSolved = 0;
+        let currentMode = 'equality';
+
+        // Inicializar el juego
+        function initGame() {
+            try {
+                game = new Phaser.Game(config);
+                
+                game.events.on('ready', () => {
+                    gameScene = game.scene.getScene('GameScene');
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('game-canvas').style.display = 'block';
+                    document.getElementById('game-stats').style.display = 'flex';
+                    updateGameStatus('¡Juego cargado! Selecciona un modo y comienza a jugar.');
+                    console.log('🎮 Juego de Manzanas Phaser mejorado iniciado correctamente');
+                });
+                
+            } catch (error) {
+                console.error('Error al inicializar el juego:', error);
+                document.getElementById('loading').textContent = 'Error al cargar el juego. Por favor, recarga la página.';
+            }
+        }
+
+        // Funciones de utilidad
+        function updateGameStatus(message) {
+            document.getElementById('game-status').textContent = message;
+        }
+
+        function updateStats() {
+            if (gameScene) {
+                document.getElementById('current-level').textContent = gameScene.gameState.currentLevel;
+                document.getElementById('problems-solved').textContent = problemsSolved;
+                
+                const modeNames = {
+                    'equality': 'Igualdad',
+                    'greater': 'Mayor que',
+                    'lesser': 'Menor que'
+                };
+                document.getElementById('current-mode').textContent = modeNames[currentMode];
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const resetBtn = document.getElementById('reset-btn');
+            const helpBtn = document.getElementById('help-btn');
+            const modeButtons = {
+                equality: document.getElementById('mode-equality'),
+                greater: document.getElementById('mode-greater'),
+                lesser: document.getElementById('mode-lesser')
+            };
+            
+            // Botón de reinicio
+            resetBtn.addEventListener('click', () => {
+                if (gameScene) {
+                    gameScene.resetGame();
+                    updateGameStatus('¡Nuevo problema generado! Sigue las instrucciones en pantalla.');
+                    updateStats();
+                }
+            });
+            
+            // Botón de ayuda
+            helpBtn.addEventListener('click', () => {
+                const helpMessages = {
+                    equality: `🍎 MODO IGUALDAD (=)
+
+1. Observa el número objetivo en el panel de información
+2. Arrastra EXACTAMENTE esa cantidad de manzanas del árbol
+3. Suelta las manzanas en la zona de recolección (caja marrón)
+4. ¡No recolectes más ni menos de las necesarias!
+
+🎯 OBJETIVO: Aprender el concepto de igualdad matemática
+Ejemplo: Si el objetivo es 3, debes recolectar exactamente 3 manzanas.`,
+
+                    greater: `🍎 MODO MAYOR QUE (>)
+
+1. Observa el número objetivo en el panel de información
+2. Arrastra MÁS manzanas de las que indica el objetivo
+3. Suelta las manzanas en la zona de recolección
+4. ¡Asegúrate de recolectar más de la cantidad indicada!
+
+🎯 OBJETIVO: Aprender el concepto "mayor que"
+Ejemplo: Si el objetivo es 3, debes recolectar 4, 5 o 6 manzanas.`,
+
+                    lesser: `🍎 MODO MENOR QUE (<)
+
+1. Observa el número objetivo en el panel de información
+2. Arrastra MENOS manzanas de las que indica el objetivo
+3. Suelta las manzanas en la zona de recolección
+4. ¡Asegúrate de recolectar menos de la cantidad indicada!
+
+🎯 OBJETIVO: Aprender el concepto "menor que"
+Ejemplo: Si el objetivo es 4, debes recolectar 1, 2 o 3 manzanas.`
+                };
+                
+                alert(helpMessages[currentMode]);
+            });
+            
+            // Botones de modo
+            Object.keys(modeButtons).forEach(mode => {
+                modeButtons[mode].addEventListener('click', () => {
+                    // Actualizar botones activos
+                    Object.values(modeButtons).forEach(btn => btn.classList.remove('active'));
+                    modeButtons[mode].classList.add('active');
+                    
+                    // Cambiar modo del juego
+                    currentMode = mode;
+                    if (gameScene) {
+                        gameScene.changeGameMode(mode);
+                        updateGameStatus('Modo cambiado. ¡Nuevo problema generado!');
+                        updateStats();
+                    }
+                });
+            });
+            
+            // Inicializar el juego
+            initGame();
+            
+            console.log('🎮 Event listeners configurados');
+        });
+
+        // Funciones globales para integración
+        function getGameStats() {
+            if (gameScene) {
+                return {
+                    currentProblem: gameScene.gameState,
+                    problemsSolved: problemsSolved,
+                    currentMode: currentMode,
+                    timestamp: new Date().toISOString()
+                };
+            }
+            return null;
+        }
+
+        function setGameDifficulty(minApples, maxApples) {
+            if (gameScene) {
+                gameScene.setDifficulty(minApples, maxApples);
+                updateGameStatus('Dificultad actualizada. ¡Nuevo problema generado!');
+                console.log('⚙️ Dificultad actualizada:', { min: minApples, max: maxApples });
+            }
+        }
+
+        function onProblemSolved() {
+            problemsSolved++;
+            updateStats();
+        }
+
+        // Escuchar eventos del juego
+        if (typeof window !== 'undefined') {
+            window.addEventListener('phaser-game-complete', onProblemSolved);
+        }
+
+        console.log('📱 Sistema de Juegos Matemáticos - Signo Aventura cargado');
+    </script>
+</body>
+</html>
+

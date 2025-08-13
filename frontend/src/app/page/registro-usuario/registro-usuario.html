@@ -1,0 +1,148 @@
+<div class="ml-64 flex-grow flex items-center justify-center p-6">
+  <!-- Notificaciones -->
+  <app-notify *ngIf="typeResponse" 
+              [type]="typeResponse" 
+              [messages]="messages"
+              (close)="typeResponse = ''">
+  </app-notify>
+
+  <div class="w-full max-w-4xl rounded-2xl shadow-2xl bg-gradient-to-br from-gray-800 to-black-100 text-white p-8">
+    <div class="mb-6 border-b pb-4 border-gray-300">
+      <h5 class="text-2xl font-semibold text-center text-white-900">Registrar Usuario</h5>
+    </div>
+
+    <!-- Selección inicial de tipo de usuario -->
+    <div *ngIf="!userType" class="text-center mb-8">
+      <h3 class="text-xl font-semibold mb-4">Seleccione el tipo de usuario</h3>
+      <div class="flex justify-center gap-6">
+        <button (click)="selectUserType('ESTUDIANTE')" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200">
+          Estudiante
+        </button>
+        <button (click)="selectUserType('DOCENTE')" 
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200">
+          Docente
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <form *ngIf="userType" [formGroup]="frmPersonInsert" (ngSubmit)="save()" class="space-y-6">
+      <!-- Nombre y Apellido -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block font-semibold mb-1">Nombres *</label>
+          <input type="text" formControlName="nombre" 
+                 class="w-full px-4 py-3 border border-gray-400 rounded-md bg-white text-black" 
+                 [class.border-red-500]="frmPersonInsert.get('nombre')?.invalid && frmPersonInsert.get('nombre')?.touched" />
+          <small *ngIf="frmPersonInsert.get('nombre')?.invalid && frmPersonInsert.get('nombre')?.touched" 
+                 class="text-red-400">Este campo es requerido</small>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Apellidos *</label>
+          <input type="text" formControlName="apellido" 
+                 class="w-full px-4 py-3 border border-gray-400 rounded-md bg-white text-black" 
+                 [class.border-red-500]="frmPersonInsert.get('apellido')?.invalid && frmPersonInsert.get('apellido')?.touched" />
+          <small *ngIf="frmPersonInsert.get('apellido')?.invalid && frmPersonInsert.get('apellido')?.touched" 
+                 class="text-red-400">Este campo es requerido</small>
+        </div>
+      </div>
+
+      <!-- Email y Usuario -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block font-semibold mb-1">Email *</label>
+          <input type="email" formControlName="email" 
+                 class="w-full px-4 py-3 border border-gray-400 rounded-md bg-white text-black" 
+                 [class.border-red-500]="frmPersonInsert.get('email')?.invalid && frmPersonInsert.get('email')?.touched" />
+          <small *ngIf="frmPersonInsert.get('email')?.errors?.['required'] && frmPersonInsert.get('email')?.touched" 
+                 class="text-red-400">Este campo es requerido</small>
+          <small *ngIf="frmPersonInsert.get('email')?.errors?.['email'] && frmPersonInsert.get('email')?.touched" 
+                 class="text-red-400">Ingrese un email válido</small>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Usuario *</label>
+          <input type="text" formControlName="usuario" 
+                 class="w-full px-4 py-3 border border-gray-400 rounded-md bg-white text-black" 
+                 [class.border-red-500]="frmPersonInsert.get('usuario')?.invalid && frmPersonInsert.get('usuario')?.touched" />
+          <small *ngIf="frmPersonInsert.get('usuario')?.errors?.['required'] && frmPersonInsert.get('usuario')?.touched" 
+                 class="text-red-400">Este campo es requerido</small>
+          <small *ngIf="frmPersonInsert.get('usuario')?.errors?.['minlength'] && frmPersonInsert.get('usuario')?.touched" 
+                 class="text-red-400">Mínimo 4 caracteres</small>
+        </div>
+      </div>
+
+      <!-- Fecha de nacimiento (solo para estudiantes) -->
+      <div *ngIf="userType === 'ESTUDIANTE'">
+        <label class="block font-semibold mb-1">Fecha de Nacimiento *</label>
+        <input type="date" formControlName="fechaNacimiento" [max]="today" 
+               class="w-full px-4 py-3 border border-gray-400 rounded-md bg-white text-black" 
+               [class.border-red-500]="frmPersonInsert.get('fechaNacimiento')?.invalid && frmPersonInsert.get('fechaNacimiento')?.touched" />
+        <small *ngIf="frmPersonInsert.get('fechaNacimiento')?.invalid && frmPersonInsert.get('fechaNacimiento')?.touched" 
+               class="text-red-400">Este campo es requerido</small>
+      </div>
+
+      <!-- Estado -->
+      <div>
+        <label class="block font-semibold mb-1">Estado *</label>
+        <div class="flex gap-4">
+          <label class="inline-flex items-center">
+            <input type="radio" formControlName="activo" [value]="true" class="form-radio text-blue-600" />
+            <span class="ml-2">Habilitado</span>
+          </label>
+          <label class="inline-flex items-center">
+            <input type="radio" formControlName="activo" [value]="false" class="form-radio text-blue-600" />
+            <span class="ml-2">Inhabilitado</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Contraseñas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block font-semibold mb-1">Contraseña *</label>
+          <div class="relative">
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="contrasenia" 
+                   class="w-full px-4 py-3 border border-gray-400 rounded-md bg-white text-black pr-10" 
+                   [class.border-red-500]="frmPersonInsert.get('contrasenia')?.invalid && frmPersonInsert.get('contrasenia')?.touched" />
+            <button type="button" (click)="togglePasswordVisibility()" 
+                    class="absolute right-3 top-3 text-gray-600 hover:text-gray-800">
+              <i class="fas {{ showPassword ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+            </button>
+          </div>
+          <small *ngIf="frmPersonInsert.get('contrasenia')?.errors?.['required'] && frmPersonInsert.get('contrasenia')?.touched" 
+                 class="text-red-400">Este campo es requerido</small>
+          <small *ngIf="frmPersonInsert.get('contrasenia')?.errors?.['minlength'] && frmPersonInsert.get('contrasenia')?.touched" 
+                 class="text-red-400">Mínimo 6 caracteres</small>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Confirmar Contraseña *</label>
+          <div class="relative">
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="confirmarContrasenia" 
+                   class="w-full px-4 py-3 border border-gray-400 rounded-md bg-white text-black pr-10" 
+                   [class.border-red-500]="passwordsDontMatch() && frmPersonInsert.get('confirmarContrasenia')?.touched" />
+            <button type="button" (click)="togglePasswordVisibility()" 
+                    class="absolute right-3 top-3 text-gray-600 hover:text-gray-800">
+              <i class="fas {{ showPassword ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+            </button>
+          </div>
+          <small *ngIf="frmPersonInsert.get('confirmarContrasenia')?.errors?.['required'] && frmPersonInsert.get('confirmarContrasenia')?.touched" 
+                 class="text-red-400">Este campo es requerido</small>
+          <small *ngIf="passwordsDontMatch() && frmPersonInsert.get('confirmarContrasenia')?.touched" 
+                 class="text-red-400">Las contraseñas no coinciden</small>
+        </div>
+      </div>
+
+      <!-- Botón -->
+      <div class="flex justify-center">
+        <button type="submit" [disabled]="frmPersonInsert.invalid || passwordsDontMatch() || loading"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200 disabled:bg-blue-400 disabled:cursor-not-allowed">
+          {{ loading ? 'Guardando...' : 'Registrar ' + (userType === 'ESTUDIANTE' ? 'Estudiante' : 'Docente') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
