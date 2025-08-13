@@ -1,10 +1,25 @@
-// Configuración principal del juego
+import { GameScene } from './scenes/GameScene.js';
+
 const config = {
     type: Phaser.AUTO,
-    width: 900,
-    height: 600,
-    parent: 'phaser-game',
-    backgroundColor: '#87CEEB',
+    title: 'El Cohete Espacial - Juego de Matemáticas',
+    parent: 'game-container',
+    width: 1280,
+    height: 720,
+    backgroundColor: '#0a0a0a',
+    scene: GameScene,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        min: {
+            width: 640,
+            height: 360
+        },
+        max: {
+            width: 1920,
+            height: 1080
+        }
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -12,33 +27,47 @@ const config = {
             debug: false
         }
     },
-    scene: [CarreraMayorQueScene]
+    render: {
+        antialias: true,
+        pixelArt: false,
+        roundPixels: false
+    },
+    audio: {
+        disableWebAudio: false
+    }
 };
 
-// Inicializar el juego
-const game = new Phaser.Game(config);
+// Crear el juego
+window.game = new Phaser.Game(config);
 
-// Configuración global del juego
-window.GAME_CONFIG = {
-    // Configuración de carritos
-    CAR_BASE_SPEED: 50,        // Velocidad base en píxeles/segundo
-    CAR_FAST_SPEED: 200,       // Velocidad rápida cuando es correcto
-    CAR_START_X: 100,          // Posición inicial X de los carritos
-    CAR_LANE_Y: [350, 450],    // Posiciones Y de los dos carriles
-    FINISH_LINE_X: 700,        // Posición X de la línea de meta
-    DISAPPEAR_X: 850,          // Posición X donde desaparecen los carritos
-    
-    // Configuración de tiempo
-    SELECTION_TIME: 10,        // Tiempo límite para seleccionar (segundos)
-    
-    // Configuración de números
-    MIN_NUMBER: 1,
-    MAX_NUMBER: 10,
-    
-    // Configuración visual
-    LANE_WIDTH: 80,
-    TRACK_HEIGHT: 200
-};
+// Eventos globales del juego
+window.game.events.on('ready', () => {
+    console.log('El Cohete Espacial - Juego iniciado correctamente');
+});
 
-console.log('🎮 Juego de Carrera Mayor Que - Versión Mejorada iniciado');
+// Manejo de errores
+window.addEventListener('error', (event) => {
+    console.error('Error en el juego:', event.error);
+});
+
+// Manejo de visibilidad de la página
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Pausar el juego cuando la pestaña no está visible
+        if (window.game && window.game.scene.isActive('GameScene')) {
+            window.game.scene.pause('GameScene');
+        }
+    } else {
+        // Reanudar el juego cuando la pestaña vuelve a estar visible
+        if (window.game && window.game.scene.isPaused('GameScene')) {
+            window.game.scene.resume('GameScene');
+        }
+    }
+});
+
+// Información del juego para debugging
+console.log('🚀 El Cohete Espacial - Juego de Matemáticas');
+console.log('Versión: 2.0');
+console.log('Phaser:', Phaser.VERSION);
+console.log('Desarrollado con Phaser 3.90.0');
 

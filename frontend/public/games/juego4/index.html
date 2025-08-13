@@ -3,29 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrera Mayor Que</title>
-    <script src="phaser.js"></script>
+    <title>El Cohete Espacial - Juego de Matemáticas</title>
+    <meta name="description" content="Juego educativo de matemáticas donde debes calcular operaciones para cargar combustible y lanzar un cohete al espacio">
     <style>
-        body {
+        /* Reset CSS */
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            line-height: 1;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
         }
-        canvas {
-            border: 5px solid #4CAF50;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+
+        #game-container {
+            border: 2px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            background: #000;
+            max-width: 100vw;
+            max-height: 100vh;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ffff;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #00ffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            #game-container {
+                border: none;
+                border-radius: 0;
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        /* Instrucciones iniciales */
+        .instructions {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffff00;
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid #ffff00;
+            font-size: 16px;
+            text-align: center;
+            z-index: 999;
+            max-width: 90%;
+            display: none;
+        }
+
+        .instructions.show {
+            display: block;
+            animation: fadeInOut 4s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div id="phaser-game"></div>
-    <script src="src/scenes/CarreraMayorQueScene.js"></script>
-    <script src="src/main.js"></script>
+    <div class="loading" id="loading">Cargando El Cohete Espacial...</div>
+    <div class="instructions" id="instructions">
+        🚀 Selecciona 2 asteroides para formar un número MAYOR que el objetivo 🚀
+    </div>
+    <div id="game-container"></div>
+    
+    <script src="./phaser.js"></script>
+    <script type="module" src="./src/main.js"></script>
+    
+    <script>
+        // Ocultar loading cuando el juego esté listo
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loading = document.getElementById('loading');
+                if (loading) {
+                    loading.style.display = 'none';
+                }
+                
+                // Mostrar instrucciones
+                const instructions = document.getElementById('instructions');
+                if (instructions) {
+                    instructions.classList.add('show');
+                }
+            }, 1000);
+        });
+        
+        // Prevenir zoom en dispositivos móviles
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
 </body>
 </html>
 
