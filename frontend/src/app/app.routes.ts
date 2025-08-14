@@ -6,6 +6,7 @@ import { InicioComponent } from './page/inicio/inicio';
 import { InsertComponent } from './page/insert/insert';
 import { EditarEstudianteComponent } from './page/editar-estudiante/editar-estudiante';
 import { JuegosComponent } from './page/juegos/juegos';
+import { JuegosAdminComponent } from './page/juegos-admin/juegos-admin';
 import { RegistroUsuario } from './page/registro-usuario/registro-usuario';
 
 
@@ -18,5 +19,6 @@ export const routes: Routes = [
 	{ path: 'getall', component: GetAllComponent},	
 	{ path: 'app-editar-estudiante/:usuario', component: EditarEstudianteComponent },
 	{ path: 'juegos', component: JuegosComponent }, 
+	{ path: 'juegos-admin', component: JuegosAdminComponent }, 
 	{ path: 'registro', component: RegistroUsuario }, 
 ];

@@ -1,0 +1,90 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-800 via-gray-900 to-blue-700 text-white flex">
+  <aside class="w-64 p-6 bg-gray-900 flex flex-col justify-between fixed left-0 top-0 h-full">
+    <div>
+      <h3 class="text-2xl font-bold mb-2">Signo Aventura</h3>
+      <p class="text-sm text-gray-400 mb-6">Administrador</p>
+      <nav>
+        <ul class="space-y-2">
+          <li><a routerLink="/inicio" class="block px-4 py-2 rounded hover:bg-blue-700">🏠 Home</a></li>
+          <li><a routerLink="/insert" class="block px-4 py-2 rounded hover:bg-blue-700">➕ Agregar Estudiantes</a></li>
+          <li><a routerLink="/getall" class="block px-4 py-2 rounded hover:bg-blue-700">📋 Listar Estudiantes</a></li>
+          <li><a routerLink="/juegos-admin" class="block px-4 py-2 rounded hover:bg-blue-700">🎮 Admin Juegos</a></li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <div class="ml-64 flex-grow p-8">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">Administrar Juegos</h1>
+
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="bg-gray-900/60 border border-gray-700 p-6 rounded-xl mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Nombre del juego</label>
+            <input class="w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600" formControlName="nombreJuego" placeholder="Ej: Carrera Mayor Que" />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Operador</label>
+            <select class="w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600" formControlName="operador">
+              <option *ngFor="let op of operadores" [value]="op">{{ getOperadorSimbolo(op) }} ({{ op }})</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Nivel de dificultad</label>
+            <select class="w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-600" formControlName="nivelDificultad">
+              <option *ngFor="let d of dificultades" [value]="d">{{ d }}</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm text-gray-300 mb-1">Descripción</label>
+            <textarea class="w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600" rows="3" formControlName="descripcion" placeholder="Breve descripción del juego"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">URL Imagen</label>
+            <input class="w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600" formControlName="urlImagen" placeholder="/games/juego1/assets/images/..." />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">URL Juego</label>
+            <input class="w-full px-3 py-2 rounded bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600" formControlName="urlJuego" placeholder="/games/juego1/index.html" />
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" formControlName="activo" class="h-4 w-4 rounded bg-gray-800 border border-gray-700 text-blue-600 focus:ring-blue-600"/>
+            <label class="text-sm text-gray-300">Activo</label>
+          </div>
+        </div>
+        <div class="mt-6 flex gap-3 justify-end">
+          <button type="button" (click)="limpiar()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">{{ editId ? 'Actualizar' : 'Crear' }}</button>
+        </div>
+      </form>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ng-container *ngIf="(juegos$ | async) as juegos; else cargando">
+        <div class="bg-gray-900/60 border border-gray-700 p-4 rounded-xl" *ngFor="let j of juegos">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-lg font-semibold text-gray-100 truncate">{{ j.nombreJuego }}</h3>
+            <span class="text-[10px] px-2 py-1 rounded bg-blue-700 text-white">{{ j.nivelDificultad }}</span>
+          </div>
+          <div class="text-sm text-gray-300 mb-3 line-clamp-3">{{ j.descripcion }}</div>
+          <div class="mb-3 bg-gray-800 rounded flex items-center justify-center h-32 overflow-hidden" *ngIf="j.urlImagen">
+            <img [src]="j.urlImagen" alt="preview" class="max-h-32 object-contain" />
+          </div>
+          <div class="text-sm mb-2 text-gray-200">Operador: <strong>{{ getOperadorSimbolo(j.operador) }}</strong></div>
+          <a *ngIf="j.urlJuego" [href]="j.urlJuego" target="_blank" class="text-xs text-blue-300 hover:underline break-all">{{ j.urlJuego }}</a>
+          <div class="mt-4 flex gap-2 justify-end">
+            <button (click)="editar(j)" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-500 rounded">Editar</button>
+            <button (click)="eliminar(j.idJuego)" class="px-3 py-1 bg-red-600 hover:bg-red-500 rounded">Eliminar</button>
+          </div>
+        </div>
+        <div *ngIf="juegos.length === 0" class="col-span-full text-center text-gray-400">No hay juegos registrados.</div>
+        </ng-container>
+        <ng-template #cargando>
+          <div class="col-span-full text-center text-gray-400">Cargando...</div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
+
