@@ -23,22 +23,18 @@ export class LoginComponent {
   private personService = inject(PersonService);
   private router = inject(Router);
 
-  // Formulario reactivo con validación de 2 caracteres para contraseña
   frmPersonLogin = this.formBuilder.group({
     usuario: ['', [Validators.required, Validators.minLength(4)]],
-    contrasenia: ['', [Validators.required, Validators.minLength(2)]] // Cambiado a 2 caracteres
+    contrasenia: ['', [Validators.required, Validators.minLength(2)]]
   });
 
-  // Estados del componente
   loading: boolean = false;
   showPassword: boolean = false;
   errorMessage: string | null = null;
 
-  // Getters para acceder fácilmente a los controles
   get usuario() { return this.frmPersonLogin.get('usuario'); }
   get contrasenia() { return this.frmPersonLogin.get('contrasenia'); }
 
-  // Método de login
   public login(): void {
     if (this.frmPersonLogin.invalid) {
       this.markFormGroupTouched(this.frmPersonLogin);
@@ -53,30 +49,42 @@ export class LoginComponent {
       contrasenia: this.contrasenia?.value || ''
     };
 
-    //para controlar quien accede al la pagina de incicio
-   var tipoRol : String = ''; // Asignar el rol por defecto
-    this.personService.obtenerUsuario(credentials.usuario).subscribe({
-      next: (response)=>{
-          tipoRol = response.rol.nombreRol;
-        },
-      error: (error) => {
-          this.loading = false;
-          this.errorMessage = this.getErrorMessage(error);
-          console.error('Error al obtener usuario:', error);
-      }
-    })
-    //INGRESA SEGUN EL TIPO DE USUARIO
     this.personService.login(credentials).subscribe({
-      next: (response) => {
-        this.loading = false;
-        console.log(tipoRol)
-        if (response && tipoRol == 'DOCENTE') {
-        
-          this.router.navigate(['/inicio']);
+      next: (ok) => {
+        if (!ok) {
+          this.loading = false;
+          this.errorMessage = 'Credenciales incorrectas';
+          return;
+        }
+        this.personService.obtenerUsuario(credentials.usuario).subscribe({
+          next: (usr) => {
+            try {
+              localStorage.setItem('sessionUser', credentials.usuario);
+              localStorage.setItem('sessionUserId', String(usr.idUsuario ?? ''));
+              localStorage.setItem('sessionFirstName', usr.nombre ?? '');
+              localStorage.setItem('sessionLastName', usr.apellido ?? '');
+              localStorage.setItem('sessionEmail', usr.email ?? '');
+              localStorage.setItem('sessionRole', usr.rol?.nombreRol ?? '');
+              localStorage.setItem('sessionActive', String(usr.activo ?? ''));
+            } catch {}
 
-        }else if(response && tipoRol == 'ESTUDIANTE'){
-          this.router.navigate(['/juegos']);
-      }},
+            this.loading = false;
+            const tipoRol = usr.rol?.nombreRol;
+            if (tipoRol === 'DOCENTE') {
+              this.router.navigate(['/inicio']);
+            } else if (tipoRol === 'ESTUDIANTE') {
+              this.router.navigate(['/juegos']);
+            } else {
+              this.router.navigate(['/login']);
+            }
+          },
+          error: (error) => {
+            this.loading = false;
+            this.errorMessage = this.getErrorMessage(error);
+            console.error('Error al obtener usuario:', error);
+          }
+        });
+      },
       error: (error) => {
         this.loading = false;
         this.errorMessage = this.getErrorMessage(error);
@@ -85,7 +93,6 @@ export class LoginComponent {
     });
   }
 
-  // Manejo de mensajes de error
   private getErrorMessage(error: any): string {
     if (error.status === 401) {
       return 'Credenciales incorrectas';
@@ -96,12 +103,10 @@ export class LoginComponent {
     return 'Error en el servidor. Por favor intente más tarde.';
   }
 
-  // Alternar visibilidad de contraseña
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
-  // Marcar todos los campos como tocados
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.values(formGroup.controls).forEach((control: AbstractControl) => {
       control.markAsTouched();
