@@ -10,7 +10,10 @@ class GameScene extends Phaser.Scene {
             totalApples: 0,
             gameCompleted: false,
             gameMode: 'equality', // 'equality', 'greater', 'lesser'
-            currentLevel: 1
+            currentLevel: 1,
+            score: 0,
+            sessionStartTime: null,
+            totalPlayTime: 0
         };
         
         // Configuración del juego
@@ -39,9 +42,14 @@ class GameScene extends Phaser.Scene {
         this.levelText = null;
         this.modeText = null;
         this.instructionText = null;
+        this.scoreText = null;
         
         // Sonidos
         this.sounds = {};
+        
+        // Estado del progreso
+        this.userProgress = null;
+        this.progressLoaded = false;
     }
     
     preload() {
@@ -113,12 +121,75 @@ class GameScene extends Phaser.Scene {
         // Configurar eventos de entrada
         this.setupInput();
         
-        // Iniciar nuevo problema
-        this.setupNewProblem();
+        // Cargar progreso del usuario
+        this.loadUserProgress();
         
         console.log('🎮 GameScene mejorada creada correctamente');
     }
     
+    async loadUserProgress() {
+        try {
+            console.log('📊 Cargando progreso del usuario...');
+            
+            if (window.PROGRESS_MANAGER) {
+                this.userProgress = await window.PROGRESS_MANAGER.loadProgress();
+                
+                if (this.userProgress) {
+                    console.log('✅ Progreso cargado:', this.userProgress);
+                    this.gameState.score = this.userProgress.puntuacion || 0;
+                    
+                    // Mostrar mensaje de bienvenida con progreso anterior
+                    this.showWelcomeMessage();
+                } else {
+                    console.log('ℹ️ No se encontró progreso previo para este juego');
+                    this.gameState.score = 0;
+                }
+            } else {
+                console.warn('⚠️ PROGRESS_MANAGER no está disponible');
+                this.gameState.score = 0;
+            }
+        } catch (error) {
+            console.error('❌ Error cargando progreso:', error);
+            this.gameState.score = 0;
+        }
+        
+        this.progressLoaded = true;
+        this.setupNewProblem();
+    }
+
+    showWelcomeMessage() {
+        const welcomeText = this.add.text(400, 250, `¡Bienvenido de vuelta! 🍎\nTu puntuación anterior: ${this.userProgress.puntuacion} puntos`, {
+            fontSize: '24px',
+            fontFamily: 'Arial',
+            color: '#4CAF50',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: { x: 20, y: 15 },
+            align: 'center'
+        }).setOrigin(0.5);
+        welcomeText.setDepth(1004); // Máxima profundidad para mensaje de bienvenida
+        
+        // Animación de entrada
+        welcomeText.setScale(0);
+        this.tweens.add({
+            targets: welcomeText,
+            scale: 1,
+            duration: 800,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                // Desaparecer después de 3 segundos
+                this.time.delayedCall(3000, () => {
+                    this.tweens.add({
+                        targets: welcomeText,
+                        alpha: 0,
+                        duration: 500,
+                        onComplete: () => welcomeText.destroy()
+                    });
+                });
+            }
+        });
+    }
+
     setupWorld() {
         // Fondo del cielo con gradiente mejorado
         const sky = this.add.graphics();
@@ -215,21 +286,23 @@ class GameScene extends Phaser.Scene {
         infoPanel.lineStyle(3, 0x8B4513);
         infoPanel.strokeRoundedRect(20, 20, 300, 120, 10);
         
-        // Título del juego más prominente
-        this.add.text(400, 30, 'Signo Aventura', {
+        // Título del juego más prominente - SIEMPRE ADELANTE
+        const titleText = this.add.text(400, 30, 'Signo Aventura', {
             fontSize: '28px',
             fontFamily: 'Arial',
             color: '#2F4F4F',
             fontStyle: 'bold'
         }).setOrigin(0.5);
+        titleText.setDepth(1003); // Máxima profundidad para título
         
-        // Modo de juego
-        this.add.text(30, 40, 'Modo:', {
+        // Modo de juego - SIEMPRE ADELANTE
+        const modeLabel = this.add.text(30, 40, 'Modo:', {
             fontSize: '16px',
             fontFamily: 'Arial',
             color: '#8B4513',
             fontStyle: 'bold'
         });
+        modeLabel.setDepth(1003);
         
         this.modeText = this.add.text(80, 40, 'Igualdad (=)', {
             fontSize: '16px',
@@ -237,14 +310,16 @@ class GameScene extends Phaser.Scene {
             color: '#FF6347',
             fontStyle: 'bold'
         });
+        this.modeText.setDepth(1003);
         
-        // Nivel
-        this.add.text(30, 65, 'Nivel:', {
+        // Nivel - SIEMPRE ADELANTE
+        const levelLabel = this.add.text(30, 65, 'Nivel:', {
             fontSize: '16px',
             fontFamily: 'Arial',
             color: '#8B4513',
             fontStyle: 'bold'
         });
+        levelLabel.setDepth(1003);
         
         this.levelText = this.add.text(80, 65, '1', {
             fontSize: '16px',
@@ -252,14 +327,16 @@ class GameScene extends Phaser.Scene {
             color: '#32CD32',
             fontStyle: 'bold'
         });
+        this.levelText.setDepth(1003);
         
-        // Objetivo más claro
-        this.add.text(30, 90, 'Objetivo:', {
+        // Objetivo más claro - SIEMPRE ADELANTE
+        const targetLabel = this.add.text(30, 90, 'Objetivo:', {
             fontSize: '18px',
             fontFamily: 'Arial',
             color: '#8B4513',
             fontStyle: 'bold'
         });
+        targetLabel.setDepth(1003);
         
         this.targetText = this.add.text(120, 90, '0', {
             fontSize: '24px',
@@ -269,14 +346,16 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#FFFFE0',
             padding: { x: 8, y: 4 }
         });
+        this.targetText.setDepth(1003);
         
-        // Recolectado más claro
-        this.add.text(30, 115, 'Recolectado:', {
+        // Recolectado más claro - SIEMPRE ADELANTE
+        const collectedLabel = this.add.text(30, 115, 'Recolectado:', {
             fontSize: '18px',
             fontFamily: 'Arial',
             color: '#8B4513',
             fontStyle: 'bold'
         });
+        collectedLabel.setDepth(1003);
         
         this.collectedText = this.add.text(150, 115, '0', {
             fontSize: '24px',
@@ -286,8 +365,9 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#F0FFF0',
             padding: { x: 8, y: 4 }
         });
+        this.collectedText.setDepth(1003);
         
-        // Instrucciones más claras
+        // Instrucciones más claras - SIEMPRE ADELANTE
         this.instructionText = this.add.text(400, 70, 'Arrastra las manzanas rojas del árbol hacia la caja', {
             fontSize: '16px',
             fontFamily: 'Arial',
@@ -296,8 +376,9 @@ class GameScene extends Phaser.Scene {
             align: 'center',
             wordWrap: { width: 350 }
         }).setOrigin(0.5);
+        this.instructionText.setDepth(1003);
         
-        // Mensaje de retroalimentación mejorado
+        // Mensaje de retroalimentación mejorado - SIEMPRE ADELANTE
         this.feedbackText = this.add.text(400, 500, '', {
             fontSize: '22px',
             fontFamily: 'Arial',
@@ -307,6 +388,19 @@ class GameScene extends Phaser.Scene {
             backgroundColor: '#FFFFFF',
             padding: { x: 15, y: 8 }
         }).setOrigin(0.5);
+        this.feedbackText.setDepth(1004); // Máxima profundidad para mensajes de feedback
+        
+        // Texto de puntuación - SIEMPRE ADELANTE
+        this.scoreText = this.add.text(400, 530, 'Puntuación: 0', {
+            fontSize: '18px',
+            fontFamily: 'Arial',
+            color: '#4169E1',
+            fontStyle: 'bold',
+            align: 'center',
+            backgroundColor: '#F0F8FF',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5);
+        this.scoreText.setDepth(1003);
         
         console.log('🎨 UI mejorada configurada');
     }
@@ -335,37 +429,56 @@ class GameScene extends Phaser.Scene {
     }
     
     setupCollectionZone() {
-        // Zona de recolección más visible
+        // Zona de recolección ULTRA EXPANDIDA - INVISIBLE pero funcional
         this.collectionZone = this.add.graphics();
-        this.collectionZone.fillStyle(0x8B4513, 0.4);
-        this.collectionZone.fillRoundedRect(525, 350, 150, 100, 10);
-        this.collectionZone.lineStyle(4, 0x8B4513);
-        this.collectionZone.strokeRoundedRect(525, 350, 150, 100, 10);
+        // Zona ultra expandida: 450px de ancho y 420px de alto - INVISIBLE
+        this.collectionZone.fillRoundedRect(350, 180, 450, 420, 15);
+        // Sin color ni línea para hacerla invisible
+        this.collectionZone.setVisible(false); // Hacer invisible pero mantener funcionalidad
         
-        // Icono de caja
-        const box = this.add.image(600, 400, 'collection-box');
-        box.setScale(0.5);
+        // Icono de caja reducido en 10% y centrado en la nueva zona expandida
+        const box = this.add.image(590, 390, 'collection-box');
+        box.setScale(0.63); // Reducido de 0.7 a 0.63 (10% menos)
+        box.setDepth(999); // Fondo de la zona de recolección
         box.on('error', () => {
             box.setTexture('simple-box');
         });
         
-        // Etiqueta más clara
-        this.add.text(600, 320, 'Arrastra aquí', {
-            fontSize: '16px',
+        // Etiqueta más clara y prominente - SIEMPRE VISIBLE ADELANTE
+        const dragLabel = this.add.text(590, 220, 'ARRASTRA AQUÍ', {
+            fontSize: '18px',
             fontFamily: 'Arial',
             color: '#8B4513',
             fontStyle: 'bold',
             align: 'center',
             backgroundColor: '#FFFFE0',
-            padding: { x: 8, y: 4 }
+            padding: { x: 12, y: 6 }
         }).setOrigin(0.5);
         
-        console.log('📦 Zona de recolección mejorada configurada');
+        // Sistema de profundidades organizado:
+        // - Mensajes temporales: 1004 (máxima prioridad - bienvenida, progreso, ¡GENIAL!, feedback)
+        // - Todas las etiquetas: 1003 (alta prioridad, siempre adelante)
+        // - Manzanas arrastrando: 1002 (alta prioridad)
+        // - Manzanas recolectadas: 1001 (adelante de caja)
+        // - Etiqueta "ARRASTRA AQUÍ": 1003 (guía visual, siempre adelante)
+        // - Caja de recolección: 999 (fondo de la zona)
+        // - Zona de colisión: INVISIBLE (solo detección)
+        // - Manzanas en árbol: 998 (árbol y elementos del juego)
+        
+        // Asegurar que la etiqueta esté siempre adelante de todo
+        dragLabel.setDepth(1003);
+        
+
+        
+        console.log('📦 Zona de recolección MUCHO más grande configurada');
     }
     
     setupInput() {
         this.input.on('dragstart', (pointer, gameObject) => {
             gameObject.setTint(0xffff00);
+            
+            // Asegurar que la manzana que se arrastra esté adelante de todo
+            gameObject.setDepth(1002);
             
             this.tweens.add({
                 targets: gameObject,
@@ -406,6 +519,8 @@ class GameScene extends Phaser.Scene {
             if (this.isOverCollectionZone(gameObject)) {
                 this.collectApple(gameObject);
             } else {
+                // Restaurar profundidad normal si no se recolecta
+                gameObject.setDepth(998);
                 this.tweens.add({
                     targets: gameObject,
                     x: gameObject.originalX,
@@ -420,18 +535,13 @@ class GameScene extends Phaser.Scene {
     }
     
     highlightCollectionZone(highlight) {
+        // Zona de colisión invisible - no mostrar efectos visuales
+        // La funcionalidad se mantiene pero sin elementos visuales
         if (highlight) {
-            this.collectionZone.clear();
-            this.collectionZone.fillStyle(0x32CD32, 0.6);
-            this.collectionZone.fillRoundedRect(525, 350, 150, 100, 10);
-            this.collectionZone.lineStyle(6, 0x228B22);
-            this.collectionZone.strokeRoundedRect(525, 350, 150, 100, 10);
+            // Opcional: podrías agregar un efecto sutil aquí si lo deseas
+            // Por ahora, mantener invisible
         } else {
-            this.collectionZone.clear();
-            this.collectionZone.fillStyle(0x8B4513, 0.4);
-            this.collectionZone.fillRoundedRect(525, 350, 150, 100, 10);
-            this.collectionZone.lineStyle(4, 0x8B4513);
-            this.collectionZone.strokeRoundedRect(525, 350, 150, 100, 10);
+            // Mantener invisible
         }
     }
     
@@ -482,26 +592,31 @@ class GameScene extends Phaser.Scene {
     }
     
     isOverCollectionZone(gameObject) {
-        return gameObject.x >= 525 && gameObject.x <= 675 && 
-               gameObject.y >= 350 && gameObject.y <= 450;
+        // Zona de detección ULTRA EXPANDIDA: incluye toda el área derecha y más
+        return gameObject.x >= 350 && gameObject.x <= 800 && 
+               gameObject.y >= 180 && gameObject.y <= 600;
     }
     
     collectApple(appleSprite) {
         this.applesGroup.remove(appleSprite);
         
-        const targetX = 600 + (this.gameState.collectedQuantity * 25) - 50;
-        const targetY = 400;
+        // Posicionar manzanas recolectadas en una fila dentro de la zona
+        const targetX = 550 + (this.gameState.collectedQuantity * 30);
+        const targetY = 425;
         
         this.tweens.add({
             targets: appleSprite,
             x: targetX,
             y: targetY,
-            scale: 0.7,
+            scale: 0.6,
             duration: 500,
             ease: 'Power2',
             onComplete: () => {
                 this.collectedApplesGroup.add(appleSprite);
                 appleSprite.disableInteractive();
+                
+                // Configurar profundidad: adelante de todo (etiqueta y caja)
+                appleSprite.setDepth(1001);
                 
                 this.gameState.collectedQuantity++;
                 this.gameState.applesOnTree--;
@@ -511,16 +626,44 @@ class GameScene extends Phaser.Scene {
                 
                 // Efecto de sonido
                 this.playCollectSound();
+                
+                // Efecto visual de confirmación
+                this.createCollectionEffect(targetX, targetY);
             }
         });
         
-        console.log('🍎 Manzana recolectada');
+        console.log('🍎 Manzana recolectada exitosamente');
+    }
+    
+    createCollectionEffect(x, y) {
+        // Efecto de partículas cuando se recolecta una manzana
+        for (let i = 0; i < 8; i++) {
+            const particle = this.add.circle(x, y, 3, 0xFFD700);
+            
+            this.tweens.add({
+                targets: particle,
+                x: x + Phaser.Math.Between(-30, 30),
+                y: y + Phaser.Math.Between(-30, 30),
+                alpha: { from: 1, to: 0 },
+                scale: { from: 1, to: 0 },
+                duration: 800,
+                ease: 'Power2.easeOut',
+                onComplete: () => {
+                    particle.destroy();
+                }
+            });
+        }
     }
     
     setupNewProblem() {
         console.log('🔄 Configurando nuevo problema...');
         
         this.clearGame();
+        
+        // Inicializar tiempo de sesión si es la primera vez
+        if (!this.gameState.sessionStartTime) {
+            this.gameState.sessionStartTime = Date.now();
+        }
         
         // Generar problema según el modo
         switch (this.gameState.gameMode) {
@@ -589,6 +732,7 @@ class GameScene extends Phaser.Scene {
             
             apple.setScale(0.8);
             apple.setInteractive({ draggable: true });
+            apple.setDepth(998); // Profundidad para manzanas en el árbol
             
             apple.originalX = position.x;
             apple.originalY = position.y;
@@ -626,6 +770,7 @@ class GameScene extends Phaser.Scene {
         this.targetText.setText(this.gameState.targetQuantity.toString());
         this.collectedText.setText(this.gameState.collectedQuantity.toString());
         this.levelText.setText(this.gameState.currentLevel.toString());
+        this.scoreText.setText(`Puntuación: ${this.gameState.score}`);
         
         // Actualizar texto del modo
         const modeTexts = {
@@ -674,6 +819,7 @@ class GameScene extends Phaser.Scene {
         if (isCorrect) {
             this.showFeedback(message, 'correct');
             this.gameState.gameCompleted = true;
+            this.gameState.score += 10; // Sumar puntos por completar
             
             // Deshabilitar manzanas restantes
             this.applesGroup.children.entries.forEach(apple => {
@@ -682,6 +828,9 @@ class GameScene extends Phaser.Scene {
             });
             
             this.createCelebrationEffect();
+            
+            // Guardar progreso en la base de datos
+            this.saveProgress();
             
             // Avanzar nivel después de un tiempo
             this.time.delayedCall(3000, () => {
@@ -769,7 +918,7 @@ class GameScene extends Phaser.Scene {
             });
         }
         
-        // Efecto de texto flotante
+        // Efecto de texto flotante - SIEMPRE ADELANTE
         const successText = this.add.text(centerX, centerY - 50, '¡GENIAL!', {
             fontSize: '48px',
             fontFamily: 'Arial',
@@ -778,6 +927,7 @@ class GameScene extends Phaser.Scene {
             stroke: '#FF6347',
             strokeThickness: 4
         }).setOrigin(0.5);
+        successText.setDepth(1004); // Máxima profundidad para mensaje de éxito
         
         successText.setScale(0);
         this.tweens.add({
@@ -843,6 +993,64 @@ class GameScene extends Phaser.Scene {
         this.gameConfig.maxApples = Math.min(8, maxApples);
         this.setupNewProblem();
         console.log('⚙️ Dificultad actualizada');
+    }
+
+    async saveProgress() {
+        if (!window.PROGRESS_MANAGER) {
+            console.warn('⚠️ PROGRESS_MANAGER no está disponible');
+            return;
+        }
+
+        try {
+            const currentTime = Date.now();
+            const sessionTime = this.gameState.sessionStartTime ? 
+                Math.floor((currentTime - this.gameState.sessionStartTime) / 1000) : 0;
+            
+            const hours = Math.floor(sessionTime / 3600);
+            const minutes = Math.floor((sessionTime % 3600) / 60);
+            const seconds = sessionTime % 60;
+            const tiempoJugado = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const success = await window.PROGRESS_MANAGER.saveProgress(10, tiempoJugado);
+            
+            if (success) {
+                this.showSaveIndicator();
+            } else {
+                console.error('Error guardando progreso');
+            }
+        } catch (error) {
+            console.error('Error en saveProgress:', error);
+        }
+    }
+
+    showSaveIndicator() {
+        const saveText = this.add.text(400, 180, '💾 Progreso actualizado', {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#4CAF50',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5);
+        saveText.setDepth(1004); // Máxima profundidad para mensaje de progreso
+        
+        saveText.setScale(0);
+        this.tweens.add({
+            targets: saveText,
+            scale: 1,
+            duration: 300,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                this.time.delayedCall(2000, () => {
+                    this.tweens.add({
+                        targets: saveText,
+                        alpha: 0,
+                        duration: 300,
+                        onComplete: () => saveText.destroy()
+                    });
+                });
+            }
+        });
     }
 }
 
