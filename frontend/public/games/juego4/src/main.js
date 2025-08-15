@@ -37,12 +37,93 @@ const config = {
     }
 };
 
+// Configuración global del juego
+window.GAME_CONFIG = {
+    // Configuración del juego del cohete
+    MAX_LEVEL: 10,
+    MIN_LEVEL: 1,
+    ROCKET_SPEED: 200,
+    
+    // Configuración de progreso
+    GAME_ID: 4,                // ID del juego en la base de datos
+    API_BASE_URL: 'http://localhost:8080/api/pcontrolador'
+};
+
+// Funciones para manejar el progreso
+window.PROGRESS_MANAGER = {
+    getCurrentUser: function() {
+        const sessionStudentId = localStorage.getItem('sessionStudentId');
+        const sessionUser = localStorage.getItem('sessionUser');
+        
+        if (!sessionStudentId || !sessionUser) {
+            return null;
+        }
+        
+        return {
+            id: parseInt(sessionStudentId),
+            usuario: sessionUser
+        };
+    },
+    
+    loadProgress: async function() {
+        const user = this.getCurrentUser();
+        if (!user) return null;
+        
+        try {
+            const response = await fetch(`${window.GAME_CONFIG.API_BASE_URL}/progreso/${user.id}/${window.GAME_CONFIG.GAME_ID}`);
+            if (response.ok) {
+                const progreso = await response.json();
+                return progreso;
+            } else if (response.status === 404) {
+                return null;
+            }
+        } catch (error) {
+            console.error('Error cargando progreso:', error);
+        }
+        return null;
+    },
+    
+    saveProgress: async function(puntuacion, tiempoJugado) {
+        const user = this.getCurrentUser();
+        if (!user) {
+            return false;
+        }
+        
+        const progresoData = {
+            idEstudiante: user.id,
+            idJuego: window.GAME_CONFIG.GAME_ID,
+            puntuacion: puntuacion,
+            fechaIntento: new Date().toISOString(),
+            tiempoJugado: tiempoJugado
+        };
+        
+        try {
+            const response = await fetch(`${window.GAME_CONFIG.API_BASE_URL}/guardarProgreso`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(progresoData)
+            });
+            
+            if (response.ok) {
+                const savedProgress = await response.json();
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            return false;
+        }
+    }
+};
+
 // Crear el juego
 window.game = new Phaser.Game(config);
 
 // Eventos globales del juego
 window.game.events.on('ready', () => {
-    console.log('El Cohete Espacial - Juego iniciado correctamente');
+    console.log('🚀 El Cohete Espacial - Juego iniciado correctamente');
 });
 
 // Manejo de errores

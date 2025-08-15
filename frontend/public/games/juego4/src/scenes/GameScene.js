@@ -28,6 +28,11 @@ export class GameScene extends Phaser.Scene {
         this.poolSize = 10; // Tamaño del pool
 
         this.lastTargetNumber = -1; // Para asegurar que el nuevo objetivo sea diferente
+        
+        // Estado del progreso
+        this.userProgress = null;
+        this.progressLoaded = false;
+        this.sessionStartTime = null;
     }
 
     preload() {
@@ -64,10 +69,123 @@ export class GameScene extends Phaser.Scene {
         // Inicializar pool de asteroides
         this.initializeAsteroidPool();
         
-        // Inicializar el juego
-        this.startNewRound();
+        // Cargar progreso del usuario
+        this.loadUserProgress();
         
         console.log("GameScene created successfully");
+    }
+
+    async loadUserProgress() {
+        try {
+            console.log('📊 Cargando progreso del usuario...');
+            
+            if (window.PROGRESS_MANAGER) {
+                this.userProgress = await window.PROGRESS_MANAGER.loadProgress();
+                
+                if (this.userProgress) {
+                    this.score = this.userProgress.puntuacion || 0;
+                    
+                    this.showWelcomeMessage();
+                } else {
+                    this.score = 0;
+                }
+            } else {
+                this.score = 0;
+            }
+        } catch (error) {
+            this.score = 0;
+        }
+        
+        this.progressLoaded = true;
+        this.startNewRound();
+    }
+
+    showWelcomeMessage() {
+        const welcomeText = this.add.text(640, 10, `¡Bienvenido de vuelta! 🚀\nTu puntuación anterior: ${this.userProgress.puntuacion} puntos`, {
+            fontSize: '24px',
+            fontFamily: 'Arial',
+            color: '#00ffff',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: { x: 20, y: 15 },
+            align: 'center'
+        }).setOrigin(0.5);
+        welcomeText.setDepth(this.DEPTHS.FEEDBACK);
+        
+        welcomeText.setScale(0);
+        this.tweens.add({
+            targets: welcomeText,
+            scale: 1,
+            duration: 800,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                this.time.delayedCall(3000, () => {
+                    this.tweens.add({
+                        targets: welcomeText,
+                        alpha: 0,
+                        duration: 500,
+                        onComplete: () => welcomeText.destroy()
+                    });
+                });
+            }
+        });
+    }
+
+    async saveProgress() {
+        if (!window.PROGRESS_MANAGER) {
+            return;
+        }
+
+        try {
+            const currentTime = Date.now();
+            const sessionTime = this.sessionStartTime ? 
+                Math.floor((currentTime - this.sessionStartTime) / 1000) : 0;
+            
+            const hours = Math.floor(sessionTime / 3600);
+            const minutes = Math.floor((sessionTime % 3600) / 60);
+            const seconds = sessionTime % 60;
+            const tiempoJugado = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const success = await window.PROGRESS_MANAGER.saveProgress(10, tiempoJugado);
+            
+            if (success) {
+                this.showSaveIndicator();
+            } else {
+                console.error('Error guardando progreso');
+            }
+        } catch (error) {
+            console.error('Error en saveProgress:', error);
+        }
+    }
+
+    showSaveIndicator() {
+        const saveText = this.add.text(640, 10, '💾 Progreso actualizado', {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#00ff00',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5);
+        saveText.setDepth(this.DEPTHS.FEEDBACK);
+        
+        saveText.setScale(0);
+        this.tweens.add({
+            targets: saveText,
+            scale: 1,
+            duration: 300,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                this.time.delayedCall(2000, () => {
+                    this.tweens.add({
+                        targets: saveText,
+                        alpha: 0,
+                        duration: 300,
+                        onComplete: () => saveText.destroy()
+                    });
+                });
+            }
+        });
     }
 
     setupDepths() {
@@ -278,13 +396,19 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    addScore(amount) {
+    async addScore(amount) {
         this.score += amount;
         this.updateUI();
+        
+        await this.saveProgress();
     }
 
     startNewRound() {
         console.log("Starting new round");
+        
+        if (!this.sessionStartTime) {
+            this.sessionStartTime = Date.now();
+        }
         
         // Resetear variables
         this.fuel = 0;
@@ -506,8 +630,8 @@ export class GameScene extends Phaser.Scene {
 
             // Si ya se seleccionaron 2 asteroides, activar la lógica de comparación
             if (this.selectedAsteroids.length === this.maxSelectedAsteroids) {
-                this.time.delayedCall(500, () => { // Pequeño retraso para que el usuario vea la selección
-                    this.processSelection();
+                this.time.delayedCall(500, async () => { // Pequeño retraso para que el usuario vea la selección
+                    await this.processSelection();
                 });
             }
         }
@@ -558,7 +682,7 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    processSelection() {
+    async processSelection() {
         if (this.selectedAsteroids.length !== 2) return;
         
         const formedNumber = parseInt(this.selectedAsteroids[0].number.toString() + this.selectedAsteroids[1].number.toString());
@@ -568,7 +692,7 @@ export class GameScene extends Phaser.Scene {
         if (formedNumber > this.targetNumber) {
             // Respuesta correcta - el número formado es MAYOR que el objetivo
             this.addFuel(20);
-            this.addScore(10 * this.level);
+            await this.addScore(10 * this.level);
             this.correctAnswers++;
             
             // Efecto visual de acierto
