@@ -9,7 +9,9 @@ class GameScene extends Phaser.Scene {
             gameCompleted: false,
             selectedGroups: new Set(),
             correctGroups: [],
-            score: 0
+            score: 0,
+            sessionStartTime: null,
+            totalPlayTime: 0
         };
         
         // Configuración del juego
@@ -37,6 +39,10 @@ class GameScene extends Phaser.Scene {
         
         // Sonidos
         this.sounds = {};
+        
+        // Estado del progreso
+        this.userProgress = null;
+        this.progressLoaded = false;
     }
     
     preload() {
@@ -65,12 +71,74 @@ class GameScene extends Phaser.Scene {
         // Configurar eventos de entrada (CLIC en lugar de arrastre)
         this.setupInput();
         
-        // Iniciar nuevo problema
-        this.setupNewProblem();
+        // Cargar progreso del usuario
+        this.loadUserProgress();
         
         console.log('🎮 GameScene mejorado creado correctamente');
     }
     
+    async loadUserProgress() {
+        try {
+            console.log('📊 Cargando progreso del usuario...');
+            
+            if (window.PROGRESS_MANAGER) {
+                this.userProgress = await window.PROGRESS_MANAGER.loadProgress();
+                
+                if (this.userProgress) {
+                    console.log('✅ Progreso cargado:', this.userProgress);
+                    this.gameState.score = this.userProgress.puntuacion || 0;
+                    
+                    // Mostrar mensaje de bienvenida con progreso anterior
+                    this.showWelcomeMessage();
+                } else {
+                    console.log('ℹ️ No se encontró progreso previo para este juego');
+                    this.gameState.score = 0;
+                }
+            } else {
+                console.warn('⚠️ PROGRESS_MANAGER no está disponible');
+                this.gameState.score = 0;
+            }
+        } catch (error) {
+            console.error('❌ Error cargando progreso:', error);
+            this.gameState.score = 0;
+        }
+        
+        this.progressLoaded = true;
+        this.setupNewProblem();
+    }
+
+    showWelcomeMessage() {
+        const welcomeText = this.add.text(400, 250, `¡Bienvenido de vuelta! 🎈\nTu puntuación anterior: ${this.userProgress.puntuacion} puntos`, {
+            fontSize: '24px',
+            fontFamily: 'Arial',
+            color: '#4CAF50',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: { x: 20, y: 15 },
+            align: 'center'
+        }).setOrigin(0.5);
+        
+        // Animación de entrada
+        welcomeText.setScale(0);
+        this.tweens.add({
+            targets: welcomeText,
+            scale: 1,
+            duration: 800,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                // Desaparecer después de 3 segundos
+                this.time.delayedCall(3000, () => {
+                    this.tweens.add({
+                        targets: welcomeText,
+                        alpha: 0,
+                        duration: 500,
+                        onComplete: () => welcomeText.destroy()
+                    });
+                });
+            }
+        });
+    }
+
     setupWorld() {
         // Fondo del cielo con imagen
         const background = this.add.image(400, 300, 'sky-background');
@@ -279,7 +347,7 @@ class GameScene extends Phaser.Scene {
         });
     }
     
-    checkGameCompletion() {
+    async checkGameCompletion() {
         const correctGroupsCount = this.gameState.correctGroups.length;
         const selectedCorrectCount = Array.from(this.gameState.selectedGroups).filter(index => 
             this.gameState.correctGroups.includes(index)
@@ -292,6 +360,9 @@ class GameScene extends Phaser.Scene {
             
             this.showFeedback(`¡EXCELENTE! Encontraste todos los ${correctGroupsCount} grupos correctos`, 'complete');
             this.createCelebrationEffect();
+            
+            // Guardar progreso en la base de datos
+            await this.saveProgress();
             
             // Nuevo problema después de un momento
             this.time.delayedCall(4000, () => {
@@ -315,6 +386,11 @@ class GameScene extends Phaser.Scene {
         this.gameState.gameCompleted = false;
         this.gameState.selectedGroups.clear();
         this.gameState.correctGroups = [];
+        
+        // Inicializar tiempo de sesión si es la primera vez
+        if (!this.gameState.sessionStartTime) {
+            this.gameState.sessionStartTime = Date.now();
+        }
         
         // Generar grupos de globos
         this.generateBalloonGroups();
@@ -607,6 +683,62 @@ class GameScene extends Phaser.Scene {
     resetGame() {
         this.setupNewProblem();
         console.log('🔄 Juego mejorado reiniciado');
+    }
+
+    async saveProgress() {
+        if (!window.PROGRESS_MANAGER) {
+            return;
+        }
+
+        try {
+            const currentTime = Date.now();
+            const sessionTime = this.gameState.sessionStartTime ? 
+                Math.floor((currentTime - this.gameState.sessionStartTime) / 1000) : 0;
+            
+            const hours = Math.floor(sessionTime / 3600);
+            const minutes = Math.floor((sessionTime % 3600) / 60);
+            const seconds = sessionTime % 60;
+            const tiempoJugado = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            const success = await window.PROGRESS_MANAGER.saveProgress(this.gameState.correctGroups.length * 10, tiempoJugado);
+            
+            if (success) {
+                this.showSaveIndicator();
+            } else {
+                console.error('Error guardando progreso');
+            }
+        } catch (error) {
+            console.error('Error en saveProgress:', error);
+        }
+    }
+
+    showSaveIndicator() {
+        const saveText = this.add.text(400, 180, '💾 Progreso actualizado', {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#4CAF50',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5);
+        
+        saveText.setScale(0);
+        this.tweens.add({
+            targets: saveText,
+            scale: 1,
+            duration: 300,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                this.time.delayedCall(2000, () => {
+                    this.tweens.add({
+                        targets: saveText,
+                        alpha: 0,
+                        duration: 300,
+                        onComplete: () => saveText.destroy()
+                    });
+                });
+            }
+        });
     }
 }
 

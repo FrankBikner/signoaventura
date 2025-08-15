@@ -18,6 +18,88 @@ const config = {
 // Crear el juego
 const game = new Phaser.Game(config);
 
+// Configuración global del juego
+window.GAME_CONFIG = {
+    // Configuración del juego de globos
+    MAX_BALLOONS: 6,
+    MIN_BALLOONS: 1,
+    NUMBER_OF_GROUPS: 3,
+    BALLOON_COLORS: ['red', 'blue', 'green', 'yellow', 'purple'],
+    
+    // Configuración de progreso
+    GAME_ID: 2,                // ID del juego en la base de datos
+    API_BASE_URL: 'http://localhost:8080/api/pcontrolador'
+};
+
+// Funciones para manejar el progreso
+window.PROGRESS_MANAGER = {
+    getCurrentUser: function() {
+        const sessionStudentId = localStorage.getItem('sessionStudentId');
+        const sessionUser = localStorage.getItem('sessionUser');
+        
+        if (!sessionStudentId || !sessionUser) {
+            return null;
+        }
+        
+        return {
+            id: parseInt(sessionStudentId),
+            usuario: sessionUser
+        };
+    },
+    
+    loadProgress: async function() {
+        const user = this.getCurrentUser();
+        if (!user) return null;
+        
+        try {
+            const response = await fetch(`${window.GAME_CONFIG.API_BASE_URL}/progreso/${user.id}/${window.GAME_CONFIG.GAME_ID}`);
+            if (response.ok) {
+                const progreso = await response.json();
+                return progreso;
+            } else if (response.status === 404) {
+                return null;
+            }
+        } catch (error) {
+            console.error('Error cargando progreso:', error);
+        }
+        return null;
+    },
+    
+    saveProgress: async function(puntuacion, tiempoJugado) {
+        const user = this.getCurrentUser();
+        if (!user) {
+            return false;
+        }
+        
+        const progresoData = {
+            idEstudiante: user.id,
+            idJuego: window.GAME_CONFIG.GAME_ID,
+            puntuacion: puntuacion,
+            fechaIntento: new Date().toISOString(),
+            tiempoJugado: tiempoJugado
+        };
+        
+        try {
+            const response = await fetch(`${window.GAME_CONFIG.API_BASE_URL}/guardarProgreso`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(progresoData)
+            });
+            
+            if (response.ok) {
+                const savedProgress = await response.json();
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            return false;
+        }
+    }
+};
+
 // Configurar controles del DOM
 document.addEventListener('DOMContentLoaded', function() {
     const resetBtn = document.getElementById('reset-btn');
@@ -68,5 +150,5 @@ window.gameUtils = {
     }
 };
 
-console.log('🚀 Juego de Globos "Menor Que" inicializado');
+console.log('🎈 Juego de Globos "Menor Que" - Versión con Progreso iniciado');
 
