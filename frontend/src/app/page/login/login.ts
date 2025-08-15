@@ -56,7 +56,7 @@ export class LoginComponent {
           this.errorMessage = 'Credenciales incorrectas';
           return;
         }
-        this.personService.obtenerUsuario(credentials.usuario).subscribe({
+        this.personService.obtenerUsuarioConInfo(credentials.usuario).subscribe({
           next: (usr) => {
             try {
               localStorage.setItem('sessionUser', credentials.usuario);
@@ -66,6 +66,11 @@ export class LoginComponent {
               localStorage.setItem('sessionEmail', usr.email ?? '');
               localStorage.setItem('sessionRole', usr.rol?.nombreRol ?? '');
               localStorage.setItem('sessionActive', String(usr.activo ?? ''));
+              
+              if (usr.esEstudiante && usr.idEstudiante) {
+                localStorage.setItem('sessionStudentId', String(usr.idEstudiante));
+                console.log('✅ ID del estudiante guardado:', usr.idEstudiante);
+              }
             } catch {}
 
             this.loading = false;

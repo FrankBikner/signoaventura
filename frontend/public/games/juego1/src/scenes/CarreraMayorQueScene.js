@@ -13,7 +13,9 @@ class CarreraMayorQueScene extends Phaser.Scene {
             timeRemaining: 10,
             carsMoving: false,
             gamePhase: 'waiting', // 'waiting', 'moving', 'finished'
-            selectionMade: false
+            selectionMade: false,
+            sessionStartTime: null,
+            totalPlayTime: 0
         };
 
         // Objetos del juego
@@ -30,6 +32,10 @@ class CarreraMayorQueScene extends Phaser.Scene {
         this.timerBar = null;
         this.timerBarBg = null;
         this.countdownTimer = null;
+        
+        // Estado del progreso
+        this.userProgress = null;
+        this.progressLoaded = false;
     }
 
     preload() {
@@ -222,7 +228,7 @@ class CarreraMayorQueScene extends Phaser.Scene {
         this.setupWorld();
         this.setupUI();
         this.setupInput();
-        this.setupNewProblem();
+        this.loadUserProgress();
         console.log('🎮 CarreraMayorQueScene mejorada creada correctamente');
     }
 
@@ -429,6 +435,68 @@ class CarreraMayorQueScene extends Phaser.Scene {
         // Los eventos de clic se configurarán cuando se creen los coches
     }
 
+    async loadUserProgress() {
+        try {
+            console.log('📊 Cargando progreso del usuario...');
+            
+            if (window.PROGRESS_MANAGER) {
+                this.userProgress = await window.PROGRESS_MANAGER.loadProgress();
+                
+                if (this.userProgress) {
+                    console.log('✅ Progreso cargado:', this.userProgress);
+                    this.gameState.score = this.userProgress.puntuacion || 0;
+                    
+                    // Mostrar mensaje de bienvenida con progreso anterior
+                    this.showWelcomeMessage();
+                } else {
+                    console.log('ℹ️ No se encontró progreso previo para este juego');
+                    this.gameState.score = 0;
+                }
+            } else {
+                console.warn('⚠️ PROGRESS_MANAGER no está disponible');
+                this.gameState.score = 0;
+            }
+        } catch (error) {
+            console.error('❌ Error cargando progreso:', error);
+            this.gameState.score = 0;
+        }
+        
+        this.progressLoaded = true;
+        this.setupNewProblem();
+    }
+
+    showWelcomeMessage() {
+        const welcomeText = this.add.text(450, 250, `¡Bienvenido de vuelta! 🎮\nTu puntuación anterior: ${this.userProgress.puntuacion} puntos`, {
+            fontSize: '24px',
+            fontFamily: 'Arial',
+            color: '#4CAF50',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: { x: 20, y: 15 },
+            align: 'center'
+        }).setOrigin(0.5);
+        
+        // Animación de entrada
+        welcomeText.setScale(0);
+        this.tweens.add({
+            targets: welcomeText,
+            scale: 1,
+            duration: 800,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                // Desaparecer después de 3 segundos
+                this.time.delayedCall(3000, () => {
+                    this.tweens.add({
+                        targets: welcomeText,
+                        alpha: 0,
+                        duration: 500,
+                        onComplete: () => welcomeText.destroy()
+                    });
+                });
+            }
+        });
+    }
+
     setupNewProblem() {
         this.clearGame();
         this.generateProblem();
@@ -437,6 +505,11 @@ class CarreraMayorQueScene extends Phaser.Scene {
         this.clearFeedback();
         this.startCarMovement();
         this.startTimer();
+        
+        // Inicializar tiempo de sesión si es la primera vez
+        if (!this.gameState.sessionStartTime) {
+            this.gameState.sessionStartTime = Date.now();
+        }
         
         this.gameState.gameActive = true;
         this.gameState.gamePhase = 'moving';
@@ -648,7 +721,7 @@ class CarreraMayorQueScene extends Phaser.Scene {
         }
     }
 
-    handleTimeUp() {
+    async handleTimeUp() {
         if (this.countdownTimer) {
             this.countdownTimer.remove();
             this.countdownTimer = null;
@@ -664,6 +737,9 @@ class CarreraMayorQueScene extends Phaser.Scene {
         if (!this.gameState.selectionMade) {
             this.accelerateCorrectCar();
         }
+        
+        // Guardar progreso en la base de datos
+        await this.saveProgress();
         
         // Nuevo problema después de un momento
         this.time.delayedCall(4000, () => {
@@ -705,7 +781,7 @@ class CarreraMayorQueScene extends Phaser.Scene {
         }
     }
 
-    handleCorrectAnswer(carIndex) {
+    async handleCorrectAnswer(carIndex) {
         this.gameState.score += 10;
         const correctNumber = this.gameState.carNumbers[carIndex];
         this.showFeedback(`¡Excelente! ${correctNumber} es mayor que ${this.gameState.targetNumber}`, 'correct');
@@ -720,6 +796,9 @@ class CarreraMayorQueScene extends Phaser.Scene {
         if (this.gameState.score % 30 === 0) {
             this.gameState.level++;
         }
+        
+        // Guardar progreso en la base de datos
+        await this.saveProgress();
         
         // Nuevo problema después de un momento
         this.time.delayedCall(4000, () => {
@@ -920,6 +999,72 @@ Ejemplo: 8 > 5 (8 es mayor que 5)
         
         closeBtn.on('pointerover', () => closeBtn.setFillStyle(0x45a049));
         closeBtn.on('pointerout', () => closeBtn.setFillStyle(0x4CAF50));
+    }
+
+    async saveProgress() {
+        if (!window.PROGRESS_MANAGER) {
+            console.warn('⚠️ PROGRESS_MANAGER no está disponible');
+            return;
+        }
+
+        try {
+            // Calcular tiempo total jugado en esta sesión
+            const currentTime = Date.now();
+            const sessionTime = this.gameState.sessionStartTime ? 
+                Math.floor((currentTime - this.gameState.sessionStartTime) / 1000) : 0;
+            
+            // Convertir a formato HH:mm:ss
+            const hours = Math.floor(sessionTime / 3600);
+            const minutes = Math.floor((sessionTime % 3600) / 60);
+            const seconds = sessionTime % 60;
+            const tiempoJugado = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            console.log('💾 Guardando/actualizando progreso:', {
+                puntuacion: this.gameState.score,
+                tiempoJugado: tiempoJugado
+            });
+            
+            const success = await window.PROGRESS_MANAGER.saveProgress(10, tiempoJugado);
+            
+            if (success) {
+                console.log('✅ Progreso guardado/actualizado exitosamente');
+                // Mostrar indicador visual de guardado
+                this.showSaveIndicator();
+            } else {
+                console.error('❌ Error guardando progreso');
+            }
+        } catch (error) {
+            console.error('❌ Error en saveProgress:', error);
+        }
+    }
+
+    showSaveIndicator() {
+        const saveText = this.add.text(450, 180, '💾 Progreso actualizado', {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#4CAF50',
+            fontStyle: 'bold',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5);
+        
+        saveText.setScale(0);
+        this.tweens.add({
+            targets: saveText,
+            scale: 1,
+            duration: 300,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+                this.time.delayedCall(2000, () => {
+                    this.tweens.add({
+                        targets: saveText,
+                        alpha: 0,
+                        duration: 300,
+                        onComplete: () => saveText.destroy()
+                    });
+                });
+            }
+        });
     }
 }
 

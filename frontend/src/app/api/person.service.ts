@@ -66,6 +66,10 @@ export class PersonService {
     return this.httpClient.get( `${this.apiUrl}/api/auth/usuario/${usuario}`); 
   }
 
+  public obtenerUsuarioConInfo(usuario:String):Observable<any>{
+    return this.httpClient.get( `${this.apiUrl}/api/auth/usuario-info/${usuario}`); 
+  }
+
   public insertDocente(formData: RequestDctDto): Observable<any> {
     return this.httpClient.post(
       `${this.apiUrl}/DControlador/guardarDct`,
