@@ -27,6 +27,10 @@ public class ServicioProgreso {
         return this.repoProgreso.findByEstudianteUsuarioUsuario(usuario); 
     }
 
+    public java.util.List<Progreso> listarProgresosPorUsuario(String usuario) {
+        return this.repoProgreso.findAllByEstudianteUsuarioUsuario(usuario);
+    }
+
     public Progreso guardarProgreso(ProgresoDto progreso) {
 
         Estudiante e = this.repoEstudiante.findById(progreso.getIdEstudiante())

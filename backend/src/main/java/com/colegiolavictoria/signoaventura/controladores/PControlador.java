@@ -42,6 +42,11 @@ public class PControlador {
         return ResponseEntity.ok(nuevoProgreso);
     }
 
+    @GetMapping(path = "/progresos/{usuario}")
+    public ResponseEntity<java.util.List<Progreso>> listarProgresosPorUsuario(@PathVariable String usuario) {
+        java.util.List<Progreso> lista = this.servicioProgreso.listarProgresosPorUsuario(usuario);
+        return ResponseEntity.ok(lista);
+    }
 
     
 }
