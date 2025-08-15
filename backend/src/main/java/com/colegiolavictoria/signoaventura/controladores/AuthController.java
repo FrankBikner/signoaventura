@@ -38,5 +38,14 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/usuario-info/{usuario}")
+    public ResponseEntity<?> obtenerUsuarioConInfo(@PathVariable String usuario) {
+        try {
+            return ResponseEntity.ok(servicioUsuario.obtenerUsuarioConInfo(usuario));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("Usuario no encontrado");
+        }
+    }
+
     
 }
