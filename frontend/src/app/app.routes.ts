@@ -8,6 +8,7 @@ import { EditarEstudianteComponent } from './page/editar-estudiante/editar-estud
 import { JuegosComponent } from './page/juegos/juegos';
 import { JuegosAdminComponent } from './page/juegos-admin/juegos-admin';
 import { RegistroUsuario } from './page/registro-usuario/registro-usuario';
+import { ReportesComponent } from './page/reportes/reportes';
 
 
 
@@ -21,4 +22,5 @@ export const routes: Routes = [
 	{ path: 'juegos', component: JuegosComponent }, 
 	{ path: 'juegos-admin', component: JuegosAdminComponent }, 
 	{ path: 'registro', component: RegistroUsuario }, 
+	{ path: 'reportes', component: ReportesComponent }, 
 ];
