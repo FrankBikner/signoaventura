@@ -38,13 +38,35 @@ public class PControlador {
 
     @PostMapping(path = "/guardarProgreso")
     public ResponseEntity<Progreso> guardarProgreso(@RequestBody ProgresoDto progreso) {
-        Progreso nuevoProgreso = this.servicioProgreso.guardarProgreso(progreso);
-        return ResponseEntity.ok(nuevoProgreso);
+        Progreso progresoGuardado = this.servicioProgreso.actualizarOcrearProgreso(progreso);
+        return ResponseEntity.ok(progresoGuardado);
+    }
+
+    @PostMapping(path = "/actualizarProgreso")
+    public ResponseEntity<Progreso> actualizarProgreso(@RequestBody ProgresoDto progreso) {
+        Progreso progresoActualizado = this.servicioProgreso.actualizarOcrearProgreso(progreso);
+        return ResponseEntity.ok(progresoActualizado);
     }
 
     @GetMapping(path = "/progresos/{usuario}")
     public ResponseEntity<java.util.List<Progreso>> listarProgresosPorUsuario(@PathVariable String usuario) {
         java.util.List<Progreso> lista = this.servicioProgreso.listarProgresosPorUsuario(usuario);
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping(path = "/progreso/{idEstudiante}/{idJuego}")
+    public ResponseEntity<Progreso> obtenerProgresoPorEstudianteYJuego(@PathVariable int idEstudiante, @PathVariable int idJuego) {
+        Progreso progreso = this.servicioProgreso.obtenerProgresoPorEstudianteYJuego(idEstudiante, idJuego);
+        if (progreso != null) {
+            return ResponseEntity.ok(progreso);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping(path = "/progresos/{idEstudiante}/{idJuego}")
+    public ResponseEntity<java.util.List<Progreso>> listarProgresosPorEstudianteYJuego(@PathVariable int idEstudiante, @PathVariable int idJuego) {
+        java.util.List<Progreso> lista = this.servicioProgreso.listarProgresosPorEstudianteYJuego(idEstudiante, idJuego);
         return ResponseEntity.ok(lista);
     }
 

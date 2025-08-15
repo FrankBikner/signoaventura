@@ -9,4 +9,6 @@ import com.colegiolavictoria.signoaventura.Modelos.Progreso;
 public interface RProgreso extends JpaRepository<Progreso, Integer> {
         public Progreso findByEstudianteUsuarioUsuario(String usuario);
         public java.util.List<Progreso> findAllByEstudianteUsuarioUsuario(String usuario);
+        public Progreso findByEstudianteIdEstudianteAndJuegoIdJuego(int idEstudiante, int idJuego);
+        public java.util.List<Progreso> findAllByEstudianteIdEstudianteAndJuegoIdJuego(int idEstudiante, int idJuego);
 }

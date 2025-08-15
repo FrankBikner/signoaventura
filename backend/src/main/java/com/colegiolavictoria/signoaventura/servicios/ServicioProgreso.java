@@ -31,23 +31,75 @@ public class ServicioProgreso {
         return this.repoProgreso.findAllByEstudianteUsuarioUsuario(usuario);
     }
 
-    public Progreso guardarProgreso(ProgresoDto progreso) {
-
-        Estudiante e = this.repoEstudiante.findById(progreso.getIdEstudiante())
-            .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
-        Juego j = this.repoJuego.findById(progreso.getIdJuego())
-            .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
-
-        Progreso nuevoProgreso = Progreso.builder()
-            .estudiante(e)
-            .juego(j)
-            .puntuacion(progreso.getPuntuacion())
-            .fechaIntento(progreso.getFechaIntento())
-            .tiempoJugado(progreso.getTiempoJugado())
-            .build();
-        return this.repoProgreso.save(nuevoProgreso);
+    public Progreso obtenerProgresoPorEstudianteYJuego(int idEstudiante, int idJuego) {
+        return this.repoProgreso.findByEstudianteIdEstudianteAndJuegoIdJuego(idEstudiante, idJuego);
     }
 
+    public java.util.List<Progreso> listarProgresosPorEstudianteYJuego(int idEstudiante, int idJuego) {
+        return this.repoProgreso.findAllByEstudianteIdEstudianteAndJuegoIdJuego(idEstudiante, idJuego);
+    }
 
+    public Progreso guardarProgreso(ProgresoDto progreso) {
+        // Buscar progreso existente
+        Progreso progresoExistente = this.repoProgreso.findByEstudianteIdEstudianteAndJuegoIdJuego(
+            progreso.getIdEstudiante(), progreso.getIdJuego());
+        
+        if (progresoExistente != null) {
+            // Actualizar progreso existente
+            progresoExistente.setPuntuacion(progreso.getPuntuacion());
+            progresoExistente.setFechaIntento(progreso.getFechaIntento());
+            progresoExistente.setTiempoJugado(progreso.getTiempoJugado());
+            return this.repoProgreso.save(progresoExistente);
+        } else {
+            // Crear nuevo progreso
+            Estudiante e = this.repoEstudiante.findById(progreso.getIdEstudiante())
+                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+            Juego j = this.repoJuego.findById(progreso.getIdJuego())
+                .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
+
+            Progreso nuevoProgreso = Progreso.builder()
+                .estudiante(e)
+                .juego(j)
+                .puntuacion(progreso.getPuntuacion())
+                .fechaIntento(progreso.getFechaIntento())
+                .tiempoJugado(progreso.getTiempoJugado())
+                .build();
+            return this.repoProgreso.save(nuevoProgreso);
+        }
+    }
+
+    public Progreso actualizarOcrearProgreso(ProgresoDto progreso) {
+        Progreso progresoExistente = this.repoProgreso.findByEstudianteIdEstudianteAndJuegoIdJuego(
+            progreso.getIdEstudiante(), progreso.getIdJuego());
+        
+        if (progresoExistente != null) {
+            progresoExistente.setPuntuacion(progresoExistente.getPuntuacion() + progreso.getPuntuacion());
+            progresoExistente.setFechaIntento(progreso.getFechaIntento());
+
+            java.time.LocalTime tiempoActual = progresoExistente.getTiempoJugado();
+            java.time.LocalTime tiempoNuevo = progreso.getTiempoJugado();
+            int segundosActual = tiempoActual.toSecondOfDay();
+            int segundosNuevo = tiempoNuevo.toSecondOfDay();
+            int sumaSegundos = segundosActual + segundosNuevo;
+
+            java.time.LocalTime tiempoSumado = java.time.LocalTime.ofSecondOfDay(sumaSegundos % (24 * 3600));
+            progresoExistente.setTiempoJugado(tiempoSumado);
+            return this.repoProgreso.save(progresoExistente);
+        } else {
+            Estudiante e = this.repoEstudiante.findById(progreso.getIdEstudiante())
+                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+            Juego j = this.repoJuego.findById(progreso.getIdJuego())
+                .orElseThrow(() -> new RuntimeException("Juego no encontrado"));
+
+            Progreso nuevoProgreso = Progreso.builder()
+                .estudiante(e)
+                .juego(j)
+                .puntuacion(progreso.getPuntuacion())
+                .fechaIntento(progreso.getFechaIntento())
+                .tiempoJugado(progreso.getTiempoJugado())
+                .build();
+            return this.repoProgreso.save(nuevoProgreso);
+        }
+    }
 
 }
